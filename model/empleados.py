@@ -82,7 +82,7 @@ def empleadoGet(id):
         conector = mysql.connect()
         cursor = conector.cursor()
         cursor.execute(sql, id)
-        dato = cursor.fetchone()  # None
+        dato = cursor.fetchone()
         if dato != None:
             resultado = {
                 "idEmpleado": dato[0],
@@ -185,3 +185,34 @@ def empleadoCreateUpdate(id):
     except Exception as ex:
         mensaje = "Error en la ejecucion"
     return jsonify({"mensaje": mensaje})
+
+# CRUD DE LOS CARGOS
+@empleados.route("/cargos/select/", methods=["GET"])
+def cargosSel():
+    resultado = []
+    exito = True
+    try:
+        sql = "SELECT * FROM cargo;"
+        # conectarme a la BD
+        conector = mysql.connect()
+        # almacenar informacion
+        cursor = conector.cursor()
+        # ejecutar la sentencia
+        cursor.execute(sql)
+        # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
+        datos = cursor.fetchall()
+        if datos.count == 0:
+            resultado = "No existen datos en la tabla"
+            exito = False
+        else:
+            for fila in datos:
+                Datosempleados = {
+                    "idCargo": fila[0],
+                    "nombreCargo": fila[1],
+                    "estado": fila[2]
+                }
+                resultado.append(Datosempleados)
+    except Exception as ex:
+        resultado = "Ocurrio un error en la realizacion de la consulta"
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
