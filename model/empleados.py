@@ -7,11 +7,9 @@ mysql = conexion.mysql
 # LISTO
 @empleados.route("/empleados/select/", methods=["GET"])
 def empleadoSel():
-    print("estoy en empleados")
     resultado = []
     exito = True
     try:
-        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, passwordEmpleado, imagen, encuestasRealizadas, estado, idCargo FROM empleado"
         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 2;"
         # conectarme a la BD
         conector = mysql.connect()
@@ -30,8 +28,6 @@ def empleadoSel():
                     "idEmpleado": fila[0],
                     "nombreEmpleado": fila[1],
                     "correoEmpleado": fila[2],
-                    # "passwordEmpleado": fila[3],
-                    # "imagen": fila[4],
                     "encuestasRealizadas": fila[3],
                     "estado": fila[4],
                     "idCargo": fila[5],
@@ -48,7 +44,6 @@ def empleadoAdminSel():
     resultado = []
     exito = True
     try:
-        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, passwordEmpleado, imagen, encuestasRealizadas, estado, idCargo FROM empleado"
         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 1;"
         # conectarme a la BD
         conector = mysql.connect()
@@ -67,8 +62,6 @@ def empleadoAdminSel():
                     "idEmpleado": fila[0],
                     "nombreEmpleado": fila[1],
                     "correoEmpleado": fila[2],
-                    # "passwordEmpleado": fila[3],
-                    # "imagen": fila[4],
                     "encuestasRealizadas": fila[3],
                     "estado": fila[4],
                     "idCargo": fila[5],
@@ -85,7 +78,6 @@ def empleadoAdminSel():
 def empleadoGet(id):
     exito = True
     try:
-        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, passwordEmpleado, imagen, encuestasRealizadas, estado, idCargo FROM empleado WHERE idEmpleado=%s"
         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idEmpleado=%s;"
         conector = mysql.connect()
         cursor = conector.cursor()
@@ -96,8 +88,6 @@ def empleadoGet(id):
                 "idEmpleado": dato[0],
                 "nombreEmpleado": dato[1],
                 "correoEmpleado": dato[2],
-                # "passwordEmpleado": dato[3],
-                # "imagen": dato[4],
                 "encuestasRealizadas": dato[3],
                 "estado": dato[4],
                 "idCargo": dato[5],
@@ -126,20 +116,6 @@ def empleadoDelete(id):
         exito = False
     return jsonify({"resultado": mensaje, "exito": exito})
 
-
-# NO SE QUE ES ESTO, CREO QUE PARA EL PANDA
-# @empleados.route("/empleados/crear/", methods=["POST"])
-# def empleadoIns():
-#     sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, imagen, encuestasRealizadas, estado, idCargo) VALUES(%s,%s,%s,%s,%s,%s,%s)"
-#     conn = mysql.connect()
-#     cursor = conn.cursor()
-#     request_data = request.get_json()
-#     arreglo = request_data
-#     for elemento in arreglo:
-#         cursor.execute(sql, elemento)
-#     conn.commit()
-#     return jsonify(arreglo)
-
 # MI SELECT DEBE DE TENER PARA AUQELLOS QUE EL ESTADO SEA 1(OSEA ACTIVO)
 # LISTO
 @empleados.route("/empleados/create/", methods=["POST"], defaults={"id": None})
@@ -162,27 +138,8 @@ def empleadoInsert(id):
         mensaje = ""
         sql = ""
         if id == None:
-            # print("estamos en el IF")
-            # sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, imagen, encuestasRealizadas, estado, idCargo) VALUES(%s,%s,%s,%s,%s,%s,%s)"
             sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, encuestasRealizadas, idCargo) VALUES(%s, %s, AES_ENCRYPT(%s,'fer'), %s, %s);"
-            # sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, encuestasRealizadas, idCargo VALUES('fer', 'ferhotmail', AES_ENCRYPT('8', 'fer'),  80,  1)"
             mensaje = "Insertado correctamente"
-        # else:
-        #     # print("estamos en el ELSE")
-        #     # si la contraseña esta vacia, realizamos una consulta, la desencriptamos y luego la reutilizamos para actualizar los datos
-        #     if passwordEmpleado == "":
-        #         conn = mysql.connect()
-        #         cursor = conn.cursor()
-        #         print("contraseña vacia:", passwordEmpleado)
-        #         cursor.execute(
-        #             "SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado=%s;", (id)
-        #         )
-        #         passwordEmpleado = cursor.fetchone()
-        #         datos[2]=passwordEmpleado
-        #         print("la contra es:", passwordEmpleado)
-        #     datos.append(id)
-        #     sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s"
-        #     mensaje = "Actualizado correctamente"
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(sql, datos)
@@ -195,7 +152,6 @@ def empleadoInsert(id):
 @empleados.route("/empleados/update/<int:id>/", methods=["PUT"])
 def empleadoCreateUpdate(id):
     try:
-        # estana con comilla dobles pero le pondre una
         nombreEmpleado = request.form["txtnombreEmpleado"]
         correoEmpleado = request.form["txtcorreoEmpleado"]
         passwordEmpleado = request.form["txtpasswordEmpleado"]
@@ -213,14 +169,12 @@ def empleadoCreateUpdate(id):
         if passwordEmpleado == "":
             conn = mysql.connect()
             cursor = conn.cursor()
-            # print("contraseña vacia:", passwordEmpleado)
             cursor.execute(
                 "SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado=%s;",
                 (id),
             )
             passwordEmpleado = cursor.fetchone()
             datos[2] = passwordEmpleado
-            print("la contra es:", passwordEmpleado)
         datos.append(id)
         sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
         mensaje = "Actualizado correctamente"
