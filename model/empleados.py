@@ -30,7 +30,7 @@ def empleadoSel():
                     "correoEmpleado": fila[2],
                     "encuestasRealizadas": fila[3],
                     "estado": fila[4],
-                    "idCargo": fila[5],
+                    "idCargo": fila[5]
                 }
                 resultado.append(Datosempleados)
     except Exception as ex:
@@ -221,16 +221,15 @@ def cargosSel():
 def cargosGet(id):
     exito = True
     try:
-        sql = "SELECT * FROM cargo WHERE idCargo=%s;"
+        sql = "SELECT idCargo, nombreCargo FROM cargo WHERE idCargo=%s;"
         conector = mysql.connect()
         cursor = conector.cursor()
         cursor.execute(sql, id)
         dato = cursor.fetchone()
         if dato != None:
             resultado = {
-                "idCargo": dato[0],
-                "nombreCargo": dato[1],
-                "estado": dato[2]
+                "idCargo2": dato[0],
+                "nombreCargo2": dato[1]
             }
         else:
             resultado = "No se ha encontrado al empleado"
@@ -245,7 +244,7 @@ def cargosInsert(id):
     try:
         nombreCargo = request.form["txtnombreCargo"]
         datos = [
-            nombreCargo,
+            nombreCargo
         ]
         mensaje = ""
         sql = ""
@@ -263,7 +262,7 @@ def cargosInsert(id):
 @empleados.route("/cargos/update/<int:id>/", methods=["PUT"])
 def cargosUpdate(id):
     try:
-        nombreCargo = request.form["txtnombreCargo"]
+        nombreCargo = request.form["txtnombreCargo2"]
         datos = [
             nombreCargo,
         ]
