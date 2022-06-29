@@ -1,3 +1,5 @@
+# para evitar inyecciones html usaremos la libreria re
+import re
 from flask import Blueprint, jsonify, request
 from util.Connection import Connection
 conexion = Connection()
@@ -10,7 +12,8 @@ def empleadoSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 2;"
+        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 2;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo != 1 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -118,6 +121,8 @@ def empleadoDelete(id):
 
 # MI SELECT DEBE DE TENER PARA AUQELLOS QUE EL ESTADO SEA 1(OSEA ACTIVO)
 # LISTO
+def strip_tags(value):
+    return re.sub(r'<[^>]*?>', '', value)
 @empleados.route("/empleados/create/", methods=["POST"], defaults={"id": None})
 # def empleadoCreateUpdate(id):
 def empleadoInsert(id):
@@ -128,6 +133,9 @@ def empleadoInsert(id):
         passwordEmpleado = request.form["txtpasswordEmpleado2"]
         encuestasRealizadas = request.form["txtencuestasRealizadas2"]
         idCargo = request.form["txtidCargo2"]
+        nombreEmpleado = strip_tags(nombreEmpleado)
+        correoEmpleado = strip_tags(correoEmpleado)
+        passwordEmpleado = strip_tags(passwordEmpleado)
         datos = [
             nombreEmpleado,
             correoEmpleado,
@@ -138,8 +146,17 @@ def empleadoInsert(id):
         mensaje = ""
         sql = ""
         if id == None:
-            sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, encuestasRealizadas, idCargo) VALUES(%s, %s, AES_ENCRYPT(%s,'fer'), %s, %s);"
-            mensaje = "Insertado correctamente"
+            if len(nombreEmpleado) >= 3 :
+                cargosInsert= []
+                sqlAux = ("SELECT idCargo FROM cargo WHERE idCargo =%s AND estado = 1;")
+                # print(idCargo)
+                conector = mysql.connect()
+                cursor2 = conector.cursor()
+                cursor2.execute(sqlAux,idCargo)
+                cargosInsert = cursor2.fetchall()
+                if len(cargosInsert)!= 0:
+                    sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, encuestasRealizadas, idCargo) VALUES(%s, %s, AES_ENCRYPT(%s,'fer'), %s, %s);"
+                    mensaje = "Insertado correctamente"
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(sql, datos)
@@ -157,6 +174,9 @@ def empleadoCreateUpdate(id):
         passwordEmpleado = request.form["txtpasswordEmpleado"]
         encuestasRealizadas = request.form["txtencuestasRealizadas"]
         idCargo = request.form["txtidCargo"]
+        nombreEmpleado = strip_tags(nombreEmpleado)
+        correoEmpleado = strip_tags(correoEmpleado)
+        passwordEmpleado = strip_tags(passwordEmpleado)
         datos = [
             nombreEmpleado,
             correoEmpleado,
@@ -243,6 +263,7 @@ def cargosGet(id):
 def cargosInsert(id):
     try:
         nombreCargo = request.form["txtnombreCargo"]
+        nombreCargo = strip_tags(nombreCargo)
         datos = [
             nombreCargo
         ]
@@ -263,6 +284,7 @@ def cargosInsert(id):
 def cargosUpdate(id):
     try:
         nombreCargo = request.form["txtnombreCargo2"]
+        nombreCargo = strip_tags(nombreCargo)
         datos = [
             nombreCargo,
         ]
@@ -284,13 +306,14 @@ def cargosDeshabilitado(id):
     try:
         datos =[]
         datos.append(id)
-        sql = "UPDATE cargo SET estado = 2 WHERE idCargo=%s;"
-        conector = mysql.connect()
-        cursor = conector.cursor()
-        cursor.execute(sql, id)
-        conector.commit()
-        mensaje = "El metodo delete se ha ejecutado exitosamente"
-        exito = True
+        if id !=1 :
+            sql = "UPDATE cargo SET estado = 2 WHERE idCargo=%s;"
+            conector = mysql.connect()
+            cursor = conector.cursor()
+            cursor.execute(sql, id)
+            conector.commit()
+            mensaje = "El metodo delete se ha ejecutado exitosamente"
+            exito = True
     except Exception as ex:
         mensaje = "Ocurrio un error al eliminar el empleado"
         exito = False
