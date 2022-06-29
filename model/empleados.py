@@ -192,7 +192,7 @@ def cargosSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT * FROM cargo;"
+        sql = "SELECT * FROM cargo WHERE estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -216,3 +216,83 @@ def cargosSel():
         resultado = "Ocurrio un error en la realizacion de la consulta"
         exito = False
     return jsonify({"resultado": resultado, "exito": exito})
+
+@empleados.route("/cargos/get/<int:id>/", methods=["GET"])
+def cargosGet(id):
+    exito = True
+    try:
+        sql = "SELECT * FROM cargo WHERE idCargo=%s;"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql, id)
+        dato = cursor.fetchone()
+        if dato != None:
+            resultado = {
+                "idCargo": dato[0],
+                "nombreCargo": dato[1],
+                "estado": dato[2]
+            }
+        else:
+            resultado = "No se ha encontrado al empleado"
+            exito = False
+    except Exception as ex:
+        resultado = "Ocurrio un error al realizar la consulta"
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
+    
+@empleados.route("/cargos/create/", methods=["POST"], defaults={"id": None})
+def cargosInsert(id):
+    try:
+        nombreCargo = request.form["txtnombreCargo"]
+        datos = [
+            nombreCargo,
+        ]
+        mensaje = ""
+        sql = ""
+        if id == None:
+            sql = "INSERT INTO cargo(nombreCargo) VALUES(%s);"
+            mensaje = "Insertado correctamente"
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute(sql, datos)
+        conn.commit()
+    except Exception as ex:
+        mensaje = "Error en la ejecucion"
+    return jsonify({"mensaje": mensaje})
+
+@empleados.route("/cargos/update/<int:id>/", methods=["PUT"])
+def cargosUpdate(id):
+    try:
+        nombreCargo = request.form["txtnombreCargo"]
+        datos = [
+            nombreCargo,
+        ]
+        datos.append(id)
+        mensaje = ""
+        sql = ""
+        sql = "UPDATE cargo SET nombreCargo = %s WHERE idCargo=%s;"
+        mensaje = "Actualizado correctamente"
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute(sql, datos)
+        conn.commit()
+    except Exception as ex:
+        mensaje = "Error en la ejecucion"
+    return jsonify({"mensaje": mensaje})
+
+@empleados.route("/cargos/update2/<int:id>/", methods=["PUT"])
+def cargosDeshabilitado(id):
+    try:
+        datos =[]
+        datos.append(id)
+        sql = "UPDATE cargo SET estado = 2 WHERE idCargo=%s;"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql, id)
+        conector.commit()
+        mensaje = "El metodo delete se ha ejecutado exitosamente"
+        exito = True
+    except Exception as ex:
+        mensaje = "Ocurrio un error al eliminar el empleado"
+        exito = False
+    return jsonify({"resultado": mensaje, "exito": exito})
