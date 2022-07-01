@@ -1,6 +1,6 @@
 # para evitar inyecciones html usaremos la libreria re
 import re
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from util.Connection import Connection
 conexion = Connection()
 empleados = Blueprint("empleados", __name__)
@@ -123,6 +123,8 @@ def empleadoDelete(id):
 # LISTO
 def strip_tags(value):
     return re.sub(r'<[^>]*?>', '', value)
+
+
 @empleados.route("/empleados/create/", methods=["POST"], defaults={"id": None})
 # def empleadoCreateUpdate(id):
 def empleadoInsert(id):
@@ -258,7 +260,8 @@ def cargosGet(id):
         resultado = "Ocurrio un error al realizar la consulta"
         exito = False
     return jsonify({"resultado": resultado, "exito": exito})
-    
+
+
 @empleados.route("/cargos/create/", methods=["POST"], defaults={"id": None})
 def cargosInsert(id):
     try:
@@ -301,6 +304,7 @@ def cargosUpdate(id):
         mensaje = "Error en la ejecucion"
     return jsonify({"mensaje": mensaje})
 
+
 @empleados.route("/cargos/update2/<int:id>/", methods=["PUT"])
 def cargosDeshabilitado(id):
     try:
@@ -318,3 +322,44 @@ def cargosDeshabilitado(id):
         mensaje = "Ocurrio un error al eliminar el empleado"
         exito = False
     return jsonify({"resultado": mensaje, "exito": exito})
+
+
+@empleados.route('/empleados/login/', methods = ['POST'])
+def loginCreate():
+    exito = True
+    try:
+        _correo = request.form['txtCorreo']
+        print("hola mundo")
+        _correo = strip_tags(_correo)
+        print("hola mundo")
+        _password = request.form['txtPassword']
+        print("hola mundo")
+        _password = strip_tags(_password)
+        print("hola mundo")
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = AES_ENCRYPT(%s, %s);"
+        print("hola mundo")
+        conector = mysql.connect()
+        print("hola mundo")
+        cursor = conector.cursor()
+        print("hola mundo")
+        cursor.execute(sql, (_correo, _password, _password))
+        print("hola mundo")
+        dato = cursor.fetchone()
+        print(dato)
+        if dato != None:
+            print(dato)
+            resultado = {
+                "idEmpleado": dato[0],
+                "nombreEmpleado": dato[1],
+                "correoEmpleado": dato[2],
+                "encuestasRealizadas": dato[3],
+                "idCargo": dato[4]
+            }
+        else:
+            resultado = "Usuario o contraseña incorrecta"
+            exito = False
+        print(resultado)
+    except Exception as ex:
+        exito = False
+        resultado = "Ocurrio un error al consultar el empleado"
+    return jsonify({'resultado':resultado, 'exito':exito})
