@@ -15,7 +15,7 @@ def pagina_no_encontrada(error):
 
 @app.route("/emple/")
 def method_name():
-    print(curso)
+    # print(curso)
     return "<h1>hola</h1>"
 
 
