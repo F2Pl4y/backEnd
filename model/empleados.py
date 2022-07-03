@@ -25,6 +25,7 @@ def validacion1(nombreEmpleado, idCargo):
         if len(cargosInsert)!= 0:
             valorBool = True
     return valorBool
+
 def validacion4(idCargo):
     valorBool = False
     # valida que el nombre tenga como minimo 3 caracteres
@@ -217,7 +218,7 @@ def empleadoInsert(id):
             correoEmpleado,
             passwordEmpleado,
             encuestasRealizadas,
-            idCargo,
+            idCargo
         ]
         mensaje = ""
         sql = ""
@@ -286,7 +287,6 @@ def empleadoCreateUpdate(id):
         mensaje = "Error en la ejecucion empleados/update/"
     return jsonify({"mensaje": mensaje})
 
-# @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
 @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
 def empleadoCreateUpdate2(id):
     try:
@@ -297,8 +297,6 @@ def empleadoCreateUpdate2(id):
         datos = [
             idCargo
         ]
-        # mensaje = ""
-        # sql = ""
         valorValidacion = validacion1(nombreEmpleado,idCargo)
         mensaje = ""
         sql = ""
@@ -312,7 +310,7 @@ def empleadoCreateUpdate2(id):
             cursor.execute(sql, datos)
             conn.commit()
     except Exception as ex:
-        mensaje = "Error en la ejecucion empleados/update2/"
+        mensaje = "Error en la ejecucion empleados / update2 /"
     return jsonify({"mensaje": mensaje})
 
 
@@ -416,10 +414,10 @@ def cargosUpdate(id):
 @empleados.route("/cargos/update2/<int:id>/", methods=["PUT"])
 def cargosDeshabilitado(id):
     try:
+        validacion = False
         resultado = []
         datos =[]
         datos.append(id)
-        validacion = False
         validacion = validacion2(id)
         if id !=1 :
             if (validacion == True):
@@ -457,6 +455,7 @@ def cargosDeshabilitado(id):
     return jsonify({"resultado": resultado, "exito": exito, "cargo": id})
 
 # @empleados.route("/empleado/selectX/<int:id>/", methods=["GET"])
+# me devuelve los valores de empleado
 def EmpleadosXcargo(id):
     try:
         resultado = []
@@ -500,3 +499,40 @@ def EmpleadosXcargo(id):
     # return jsonify({"resultado": resultado, "exito": exito})
     # return jsonify({"resultado": resultado})
     return datos
+
+@empleados.route("/EmpleadosXcargo/select/<int:id>/", methods=["GET"])
+def EmpleadosXcargoRoute(id):
+    try:
+        print("el valor del id:",id)
+        resultado = []
+        exito = True
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;"
+        # conectarme a la BD
+        conector = mysql.connect()
+        # almacenar informacion
+        cursor = conector.cursor()
+        # ejecutar la sentencia
+        cursor.execute(sql, id)
+        # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
+        datos = cursor.fetchall()
+        print("los datos son", len(datos))
+        if len(datos) != 0:
+            for fila in datos:
+                Datosempleados = {
+                    "idEmpleado": fila[0],
+                    "nombreEmpleado": fila[1],
+                    "correoEmpleado": fila[2],
+                    "encuestasRealizadas": fila[3],
+                    "estado": fila[4],
+                    "idCargo": fila[5]
+                }
+                resultado.append(Datosempleados)
+        else:
+            resultado = "No existen datos en la tabla"
+            exito = False
+    except Exception as ex:
+        resultado = "Ocurrio un error en la realizacion de la consulta / EmpleadosXcargo / select"
+        exito = False
+    # return jsonify({"resultado": resultado, "exito": exito})
+    # return jsonify({"resultado": resultado})
+    return jsonify({"resultado": resultado, "exito": exito})
