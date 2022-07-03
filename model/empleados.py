@@ -48,8 +48,8 @@ def validacion2(id):
     cursor2.execute(sqlAux,id)
     # valida si el id del cargo esta activo o no
     cargosInsert = cursor2.fetchall()
-    print("el tamaño de cargosInsert es:", len(cargosInsert))
-    print("cargosInsert es:", cargosInsert)
+    # print("el tamaño de cargosInsert es:", len(cargosInsert))
+    # print("cargosInsert es:", cargosInsert)
     if len(cargosInsert) == 0:
         valorBool = True
     else:
@@ -290,15 +290,10 @@ def empleadoCreateUpdate(id):
 @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
 def empleadoCreateUpdate2(id):
     try:
-        # idCargo = request.form["txtidCargo"]
-        # id = request.form["micargonuevo"]
-        print("el id vale:", id)
         idCargo = request.form["micargonuevo"]
         nombreEmpleado = request.form["tituloModalCargoDes"]
         idCargo = strip_tags(idCargo)
         nombreEmpleado = strip_tags(nombreEmpleado)
-        print("el idcargo luego de la funcion:", idCargo)
-        print("el idcargo luego de la funcion:", idCargo)
         datos = [
             idCargo
         ]
@@ -308,7 +303,7 @@ def empleadoCreateUpdate2(id):
         mensaje = ""
         sql = ""
         datos.append(id)
-        print(valorValidacion)
+        # print(valorValidacion)
         if valorValidacion == True:
             sql = "UPDATE empleado SET idCargo = %s WHERE idEmpleado=%s;"
             mensaje = "Actualizado correctamente"
@@ -435,11 +430,10 @@ def cargosDeshabilitado(id):
                 conector.commit()
                 # mensaje = "el cargo se ha inhabilitado exitosamente"
                 exito = True
-                print("estoy dentro del try cargo8")
             else:
                 datos2 = []
                 datos2 = EmpleadosXcargo(id)
-                print("los datos2 son: ",datos2)
+                # print("los datos2 son: ",datos2)
                 for fila in datos2:
                     Datosempleados = {
                         "idEmpleado": fila[0],
@@ -457,7 +451,6 @@ def cargosDeshabilitado(id):
                 conector.commit()
                 exito = True
     except Exception as ex:
-        print("estoy dentro del Exception cargo")
         mensaje = "El id se coloca con otro metodo"
         exito = False
     # return jsonify({"resultado": resultado, "exito": exito, "mensaje":mensaje})
