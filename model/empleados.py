@@ -149,7 +149,30 @@ def empleadoGet(id):
                 "correoEmpleado": dato[2],
                 "encuestasRealizadas": dato[3],
                 "estado": dato[4],
-                "idCargo": dato[5],
+                "idCargo": dato[5]
+            }
+        else:
+            resultado = "No se ha encontrado al empleado"
+            exito = False
+    except Exception as ex:
+        resultado = "Ocurrio un error al realizar la consulta"
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
+
+@empleados.route("/empleadosXcargo/get/<int:id>/", methods=["GET"])
+def empleadoXcargoGet(id):
+    exito = True
+    try:
+        sql = "SELECT idEmpleado, idCargo,nombreEmpleado FROM empleado WHERE idEmpleado=%s AND estado = 1;"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql, id)
+        dato = cursor.fetchone()
+        if dato != None:
+            resultado = {
+                "idEmpleado": dato[0],
+                "idCargo": dato[1],
+                "nombreEmpleado": dato[2]
             }
         else:
             resultado = "No se ha encontrado al empleado"
@@ -263,20 +286,29 @@ def empleadoCreateUpdate(id):
         mensaje = "Error en la ejecucion empleados/update/"
     return jsonify({"mensaje": mensaje})
 
+# @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
 @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
 def empleadoCreateUpdate2(id):
     try:
-        idCargo = request.form["txtidCargo"]
+        # idCargo = request.form["txtidCargo"]
+        # id = request.form["micargonuevo"]
+        print("el id vale:", id)
+        idCargo = request.form["micargonuevo"]
+        nombreEmpleado = request.form["tituloModalCargoDes"]
         idCargo = strip_tags(idCargo)
+        nombreEmpleado = strip_tags(nombreEmpleado)
+        print("el idcargo luego de la funcion:", idCargo)
+        print("el idcargo luego de la funcion:", idCargo)
         datos = [
             idCargo
         ]
-        mensaje = ""
-        sql = ""
-        valorValidacion = validacion1(idCargo)
+        # mensaje = ""
+        # sql = ""
+        valorValidacion = validacion1(nombreEmpleado,idCargo)
         mensaje = ""
         sql = ""
         datos.append(id)
+        print(valorValidacion)
         if valorValidacion == True:
             sql = "UPDATE empleado SET idCargo = %s WHERE idEmpleado=%s;"
             mensaje = "Actualizado correctamente"
@@ -386,8 +418,6 @@ def cargosUpdate(id):
         mensaje = "Error en la ejecucion cargos/update/"
     return jsonify({"mensaje": mensaje})
 
-# @empleados.route("/cargos/update2/<int:id>/", methods=["PUT"])
-# @empleados.route("/cargos/update2/", methods=["PUT"])
 @empleados.route("/cargos/update2/<int:id>/", methods=["PUT"])
 def cargosDeshabilitado(id):
     try:
@@ -396,8 +426,6 @@ def cargosDeshabilitado(id):
         datos.append(id)
         validacion = False
         validacion = validacion2(id)
-        # print("el 1:",validacion)
-        # print("estoy dentro del try cargo7")
         if id !=1 :
             if (validacion == True):
                 sql = "UPDATE cargo SET estado = 2 WHERE idCargo=%s;"
@@ -427,9 +455,7 @@ def cargosDeshabilitado(id):
                 cursor = conector.cursor()
                 cursor.execute(sql,id)
                 conector.commit()
-                # resultado.append(EmpleadosXcargo(id))
                 exito = True
-                # print("estoy dentro del try cargo9")
     except Exception as ex:
         print("estoy dentro del Exception cargo")
         mensaje = "El id se coloca con otro metodo"
