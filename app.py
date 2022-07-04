@@ -1,4 +1,3 @@
-#
 from model.curso_routes import curso
 from model.empleados import empleados
 from util.Aplication import Aplication
