@@ -255,12 +255,17 @@ def empleadoCreateUpdate(id):
         nombreEmpleado = strip_tags(nombreEmpleado)
         correoEmpleado = strip_tags(correoEmpleado)
         passwordEmpleado = strip_tags(passwordEmpleado)
+        sinespacios= nombreEmpleado.replace(' ', '')
+        # <a href="https://www.google.com/">fer nando</a>
+        # print("el nombre original es:", nombreEmpleado)
+        # print("sinespacios---> ",sinespacios.strip())
+        # print("sinespacios---> ",sinespacios.isalpha())
         datos = [
             nombreEmpleado,
             correoEmpleado,
             passwordEmpleado,
             encuestasRealizadas,
-            idCargo,
+            idCargo
         ]
         mensaje = ""
         sql = ""
@@ -269,21 +274,35 @@ def empleadoCreateUpdate(id):
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado=%s;",
-                (id),
+                (id)
             )
             passwordEmpleado = cursor.fetchone()
             datos[2] = passwordEmpleado
-        datos.append(id)
-        valorValidacion = validacion1(nombreEmpleado, idCargo)
-        if valorValidacion == True:
-            sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
-            mensaje = "Actualizado correctamente"
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            cursor.execute(sql, datos)
-            conn.commit()
+        # print("valor de las encuestas:",datos[3])
+        # print("valor del nombre:",datos[0])
+        # print("el tipo nombre es:",type(datos[0]))
+        # print("el tipo encuesta es:",type(datos[3]))
+        # if type(datos[3]) == int:
+        EsEntero = datos[3].isnumeric()
+        EsSoloLetras = datos[0].isalpha()
+        # EsSoloLetras = datos[0].isalnum()
+        # if EsEntero == True and EsSoloLetras==True:
+        # validar si las encuestas son un entero y que el nombre SOLO tenga letras
+        if EsEntero == True and sinespacios.isalpha()==True:
+            datos.append(id)
+            # print("el tipo es:",type(datos[3]))
+            valorValidacion = validacion1(nombreEmpleado, idCargo)
+            if valorValidacion == True:
+                sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
+                mensaje = "Actualizado correctamente"
+                conn = mysql.connect()
+                cursor = conn.cursor()
+                cursor.execute(sql, datos)
+                conn.commit()
+        else:
+            mensaje = "no se actualizo"
     except Exception as ex:
-        mensaje = "Error en la ejecucion empleados/update/"
+        mensaje = "Error en la ejecucion empleados / update/"
     return jsonify({"mensaje": mensaje})
 
 @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
