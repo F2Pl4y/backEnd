@@ -301,7 +301,6 @@ def empleadoCreateUpdate2(id):
         mensaje = ""
         sql = ""
         datos.append(id)
-        # print(valorValidacion)
         if valorValidacion == True:
             sql = "UPDATE empleado SET idCargo = %s WHERE idEmpleado=%s;"
             mensaje = "Actualizado correctamente"
@@ -503,7 +502,6 @@ def EmpleadosXcargo(id):
 @empleados.route("/EmpleadosXcargo/select/<int:id>/", methods=["GET"])
 def EmpleadosXcargoRoute(id):
     try:
-        print("el valor del id:",id)
         resultado = []
         exito = True
         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;"
@@ -515,7 +513,6 @@ def EmpleadosXcargoRoute(id):
         cursor.execute(sql, id)
         # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
         datos = cursor.fetchall()
-        print("los datos son", len(datos))
         if len(datos) != 0:
             for fila in datos:
                 Datosempleados = {
