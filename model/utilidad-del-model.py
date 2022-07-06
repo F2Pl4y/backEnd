@@ -1,1 +1,0 @@
-# El model se utiliza para representar una tabla de la bd

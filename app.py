@@ -1,9 +1,13 @@
 from model.empleados_routes import empleados
+from model.categorias_routes import categorias
+from model.platillos_routes import platillos
 from util.Aplication import Aplication
 
 aplication = Aplication()
 app = aplication.app
 app.register_blueprint(empleados)
+app.register_blueprint(categorias)
+app.register_blueprint(platillos)
 
 
 def pagina_no_encontrada(error):

@@ -1,6 +1,6 @@
 # para evitar inyecciones html usaremos la libreria re
 import re
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
 from util.Connection import Connection
 conexion = Connection()
 empleados = Blueprint("empleados", __name__)
@@ -324,30 +324,46 @@ def cargosDeshabilitado(id):
     return jsonify({"resultado": mensaje, "exito": exito})
 
 
+@empleados.route("/empleados/loginget/<int:id>/", methods=["GET"])
+def empleadoLoginGet(id):
+    exito = True
+    try:
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, e.estado, nombreCargo FROM empleado as e INNER JOIN cargo as c ON e.idCargo = c.idCargo WHERE idEmpleado=%s;"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql, id)
+        dato = cursor.fetchone()
+        if dato != None:
+            resultado = {
+                "idEmpleado": dato[0],
+                "nombreEmpleado": dato[1],
+                "correoEmpleado": dato[2],
+                "encuestasRealizadas": dato[3],
+                "estado": dato[4],
+                "nombreCargo": dato[5],
+            }
+        else:
+            resultado = "No se ha encontrado al empleado"
+            exito = False
+    except Exception as ex:
+        resultado = "Ocurrio un error al realizar la consulta"
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
+
 @empleados.route('/empleados/login/', methods = ['POST'])
 def loginCreate():
     exito = True
     try:
         _correo = request.form['txtCorreo']
-        print("hola mundo")
         _correo = strip_tags(_correo)
-        print("hola mundo")
         _password = request.form['txtPassword']
-        print("hola mundo")
         _password = strip_tags(_password)
-        print("hola mundo")
         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = AES_ENCRYPT(%s, %s);"
-        print("hola mundo")
         conector = mysql.connect()
-        print("hola mundo")
         cursor = conector.cursor()
-        print("hola mundo")
         cursor.execute(sql, (_correo, _password, _password))
-        print("hola mundo")
         dato = cursor.fetchone()
-        print(dato)
         if dato != None:
-            print(dato)
             resultado = {
                 "idEmpleado": dato[0],
                 "nombreEmpleado": dato[1],
@@ -358,7 +374,6 @@ def loginCreate():
         else:
             resultado = "Usuario o contraseña incorrecta"
             exito = False
-        print(resultado)
     except Exception as ex:
         exito = False
         resultado = "Ocurrio un error al consultar el empleado"
