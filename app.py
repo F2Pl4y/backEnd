@@ -12,12 +12,6 @@ def pagina_no_encontrada(error):
     return "<h1>Método no encontrado</h1>"
 
 
-@app.route("/emple/")
-def method_name():
-    # print(curso)
-    return "<h1>hola</h1>"
-
-
 if __name__ == "__main__":
     app.register_error_handler(404, pagina_no_encontrada)
     app.run(debug=True)
