@@ -33,12 +33,41 @@ def platilloGetInterno(id):
         exito = False
     return [resultado, exito]
 
+@platillos.route("/platillos/selectCateg/<int:idCateg>/", methods=["GET"])
+def platillsoSelectCateg(idCateg):
+    resultado = []
+    exito = True
+    try:
+        sql = "SELECT idProducto, nombreProducto, precio, imagen, descripcion, idCategoria FROM producto WHERE estado = 1 and idCategoria = %s"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql, idCateg)
+        datos = cursor.fetchall()
+        if datos.count == 0:
+            resultado = "No existen datos en la tabla"
+            exito = False
+        else:
+            for fila in datos:
+                DatosProducto = {
+                    "idProducto": fila[0],
+                    "nombreProducto": fila[1],
+                    "precio": fila[2],
+                    "imagen": fila[3],
+                    "descripcion": fila[4],
+                    "idCategoria": fila[5]
+                }
+                resultado.append(DatosProducto)
+    except Exception as ex:
+        resultado = "Ocurrio un error " + repr(ex)
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
+
 @platillos.route("/platillos/select/", methods=["GET"])
 def platillsoSelect():
     resultado = []
     exito = True
     try:
-        sql = "SELECT idProducto, nombreProducto, precio, descripcion, idCategoria FROM producto WHERE estado = 1;"
+        sql = "SELECT idProducto, nombreProducto, precio, imagen, descripcion, idCategoria FROM producto WHERE estado = 1;"
         conector = mysql.connect()
         cursor = conector.cursor()
         cursor.execute(sql)
@@ -52,8 +81,9 @@ def platillsoSelect():
                     "idProducto": fila[0],
                     "nombreProducto": fila[1],
                     "precio": fila[2],
-                    "descripcion": fila[3],
-                    "idCategoria": fila[4]
+                    "imagen": fila[3],
+                    "descripcion": fila[4],
+                    "idCategoria": fila[5]
                 }
                 resultado.append(DatosProducto)
     except Exception as ex:
@@ -67,15 +97,11 @@ def platilloGet(id):
     return jsonify({"resultado": dato[0], "exito": dato[1]})
 
 
-@platillos.route("/platillos/foto/<int:id>/", methods = ['GET'])
-def cargarImagenPlatillo(id):
-    dato = platilloGetInterno(id)
-    if dato[1] == True:
-        image_data = open("upload/images/"+dato[0]["imagen"], "rb").read()
-        resultado = make_response(image_data)
-        resultado.headers['Content-Type'] = 'image/png'
-    else:
-        resultado = jsonify({"resultado": dato[0], "exito": dato[1]})
+@platillos.route("/platillos/foto/<string:categoria>/<string:imagen>", methods = ['GET'])
+def cargarImagenPlatillo(categoria, imagen):
+    image_data = open("upload/images/"+categoria+"/"+imagen, "rb").read()
+    resultado = make_response(image_data)
+    resultado.headers['Content-Type'] = 'image/png'
     return resultado
 
 @platillos.route("/platillos/delete/<int:id>/", methods = ['PUT'])
@@ -118,39 +144,64 @@ def platillosGetCategoria(id):
 @platillos.route("/platillos/create/", methods=["POST"])
 def platilloInsert():
     try:
-        print("hola")
         nombrePlatillo = request.form["txtNombrePlatillo"]
         precio = request.form["txtPrecio"]
         imagen = request.files['imagenPlatillo']
         descripcion = request.form["txtDescripcion"]
         idCategoria = request.form["txtIdCategoria"]
-        print("hola")
 
         nombrePlatillo = strip_tags(nombrePlatillo)
         precio = strip_tags(precio)
         descripcion = strip_tags(descripcion)
         idCategoria = strip_tags(idCategoria)
-        print("hola")
 
-        if imagen != None:
-            print(idCategoria)
+        if 'imagenPlatillo' in request.files:
             nombreCategoria = platillosGetCategoria(idCategoria)[0]["nombreCategoria"]
-            print("hola")
             nombreCategoria = "".join(nombreCategoria.split())
-            print("hola")
             ruta = nombreCategoria+"/"+imagen.filename
-            print("hola")
             imagen.save("upload/images/"+ruta)
-            print("hola")
             sql = "INSERT INTO producto(nombreProducto, precio, imagen, descripcion, idCategoria) VALUES (%s, %s, %s, %s, %s)"
             conn = mysql.connect()
             cursor = conn.cursor()
             cursor.execute(sql, [nombrePlatillo, precio, ruta, descripcion, idCategoria])
             conn.commit()
-            print("hola")
             mensaje = ""
         else:
             mensaje = "Es necesario que insertes una imagen"
+    except Exception as ex:
+        mensaje = "Error en la ejecucion "+repr(ex)
+    return jsonify({"mensaje": mensaje})
+
+@platillos.route("/platillos/update/<int:id>", methods=["PUT"])
+def platilloUpdate(id):
+    try:
+        nombrePlatillo = request.form["txtNombrePlatillo"]
+        precio = request.form["txtPrecio"]
+        descripcion = request.form["txtDescripcion"]
+        idCategoria = request.form["txtIdCategoria"]
+
+        nombrePlatillo = strip_tags(nombrePlatillo)
+        precio = strip_tags(precio)
+        descripcion = strip_tags(descripcion)
+        idCategoria = strip_tags(idCategoria)
+
+        nombreCategoria = platillosGetCategoria(idCategoria)[0]["nombreCategoria"]
+        nombreCategoria = "".join(nombreCategoria.split())
+
+        if 'imagenPlatillo' in request.files:
+            imagen = request.files['imagenPlatillo']
+            sql = "UPDATE producto SET nombreProducto=%s, precio=%s, imagen=%s, descripcion=%s,idCategoria=%s WHERE idProducto=%s"
+            ruta = nombreCategoria+"/"+imagen.filename
+            datos = [nombrePlatillo, precio, ruta, descripcion, idCategoria, id]
+            imagen.save("upload/images/"+ruta)
+        else:
+            sql = "UPDATE producto SET nombreProducto=%s,precio=%s,descripcion=%s, idCategoria=%s WHERE idProducto=%s"
+            datos = [nombrePlatillo, precio, descripcion, idCategoria, id]
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute(sql, datos)
+        conn.commit()
+        mensaje = ""
     except Exception as ex:
         mensaje = "Error en la ejecucion "+repr(ex)
     return jsonify({"mensaje": mensaje})
