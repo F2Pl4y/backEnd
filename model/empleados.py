@@ -551,3 +551,58 @@ def EmpleadosXcargoRoute(id):
     # return jsonify({"resultado": resultado, "exito": exito})
     # return jsonify({"resultado": resultado})
     return jsonify({"resultado": resultado, "exito": exito})
+#abraham
+@empleados.route("/empleados/loginget/<int:id>/", methods=["GET"])
+def empleadoLoginGet(id):
+    exito = True
+    try:
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, e.estado, nombreCargo FROM empleado as e INNER JOIN cargo as c ON e.idCargo = c.idCargo WHERE idEmpleado=%s;"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql, id)
+        dato = cursor.fetchone()
+        if dato != None:
+            resultado = {
+                "idEmpleado": dato[0],
+                "nombreEmpleado": dato[1],
+                "correoEmpleado": dato[2],
+                "encuestasRealizadas": dato[3],
+                "estado": dato[4],
+                "nombreCargo": dato[5],
+            }
+        else:
+            resultado = "No se ha encontrado al empleado"
+            exito = False
+    except Exception as ex:
+        resultado = "Ocurrio un error al realizar la consulta"
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
+
+@empleados.route('/empleados/login/', methods = ['POST'])
+def loginCreate():
+    exito = True
+    try:
+        _correo = request.form['txtCorreo']
+        _correo = strip_tags(_correo)
+        _password = request.form['txtPassword']
+        _password = strip_tags(_password)
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = AES_ENCRYPT(%s, %s);"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql, (_correo, _password, _password))
+        dato = cursor.fetchone()
+        if dato != None:
+            resultado = {
+                "idEmpleado": dato[0],
+                "nombreEmpleado": dato[1],
+                "correoEmpleado": dato[2],
+                "encuestasRealizadas": dato[3],
+                "idCargo": dato[4]
+            }
+        else:
+            resultado = "Usuario o contraseña incorrecta"
+            exito = False
+    except Exception as ex:
+        exito = False
+        resultado = "Ocurrio un error al consultar el empleado"
+    return jsonify({'resultado':resultado, 'exito':exito}) 
