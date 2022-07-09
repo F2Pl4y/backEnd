@@ -586,10 +586,12 @@ def loginCreate():
         _correo = strip_tags(_correo)
         _password = request.form['txtPassword']
         _password = strip_tags(_password)
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = AES_ENCRYPT(%s, %s);"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = AES_ENCRYPT(%s, 'fer');"
+        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = AES_ENCRYPT(%s, %s);"
         conector = mysql.connect()
         cursor = conector.cursor()
-        cursor.execute(sql, (_correo, _password, _password))
+        # cursor.execute(sql, (_correo, _password, _password))
+        cursor.execute(sql, (_correo, _password))
         dato = cursor.fetchone()
         if dato != None:
             resultado = {
