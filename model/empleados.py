@@ -548,8 +548,6 @@ def EmpleadosXcargoRoute(id):
     except Exception as ex:
         resultado = "Ocurrio un error en la realizacion de la consulta / EmpleadosXcargo / select"
         exito = False
-    # return jsonify({"resultado": resultado, "exito": exito})
-    # return jsonify({"resultado": resultado})
     return jsonify({"resultado": resultado, "exito": exito})
 #abraham
 @empleados.route("/empleados/loginget/<int:id>/", methods=["GET"])
