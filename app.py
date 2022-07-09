@@ -11,10 +11,6 @@ app.register_blueprint(empleados)
 app.register_blueprint(categorias)
 app.register_blueprint(platillos)
 
-# aplication = Aplication()
-# app = aplication.app
-# app.register_blueprint(curso)
-# app.register_blueprint(empleados)
 
 
 def pagina_no_encontrada(error):
