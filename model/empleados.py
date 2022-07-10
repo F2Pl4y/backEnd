@@ -207,7 +207,7 @@ def empleadoInsert(id):
         nombreEmpleado = request.form["txtnombreEmpleado2"]
         correoEmpleado = request.form["txtcorreoEmpleado2"]
         passwordEmpleado = request.form["txtpasswordEmpleado2"]
-        encuestasRealizadas = request.form["txtencuestasRealizadas2"]
+        # encuestasRealizadas = request.form["txtencuestasRealizadas2"]
         idCargo = request.form["txtidCargo2"]
         nombreEmpleado = strip_tags(nombreEmpleado)
         correoEmpleado = strip_tags(correoEmpleado)
@@ -216,7 +216,7 @@ def empleadoInsert(id):
             nombreEmpleado,
             correoEmpleado,
             passwordEmpleado,
-            encuestasRealizadas,
+            # encuestasRealizadas,
             idCargo
         ]
         mensaje = ""
@@ -234,14 +234,15 @@ def empleadoInsert(id):
             #     cargosInsert = cursor2.fetchall()
             #     # valida si el id del cargo esta activo o no
             #     if len(cargosInsert)!= 0:
-                sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, encuestasRealizadas, idCargo) VALUES(%s, %s, AES_ENCRYPT(%s,'fer'), %s, %s);"
+                # sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, encuestasRealizadas, idCargo) VALUES(%s, %s, AES_ENCRYPT(%s,'fer'), %s, %s);"
+                sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, idCargo) VALUES(%s, %s, AES_ENCRYPT(%s,'fer'), %s);"
                 mensaje = "Insertado correctamente"
                 conn = mysql.connect()
                 cursor = conn.cursor()
                 cursor.execute(sql, datos)
                 conn.commit()
     except Exception as ex:
-        mensaje = "Error en la ejecucion empleados/create"
+        mensaje = "Error en la ejecucion empleados / create"
     return jsonify({"mensaje": mensaje})
 
 @empleados.route("/empleados/update/<int:id>/", methods=["PUT"])
@@ -250,7 +251,7 @@ def empleadoCreateUpdate(id):
         nombreEmpleado = request.form["txtnombreEmpleado"]
         correoEmpleado = request.form["txtcorreoEmpleado"]
         passwordEmpleado = request.form["txtpasswordEmpleado"]
-        encuestasRealizadas = request.form["txtencuestasRealizadas"]
+        # encuestasRealizadas = request.form["txtencuestasRealizadas"]
         idCargo = request.form["txtidCargo"]
         nombreEmpleado = strip_tags(nombreEmpleado)
         correoEmpleado = strip_tags(correoEmpleado)
@@ -264,7 +265,7 @@ def empleadoCreateUpdate(id):
             nombreEmpleado,
             correoEmpleado,
             passwordEmpleado,
-            encuestasRealizadas,
+            # encuestasRealizadas,
             idCargo
         ]
         mensaje = ""
@@ -288,17 +289,18 @@ def empleadoCreateUpdate(id):
         # EsSoloLetras = datos[0].isalnum()
         # if EsEntero == True and EsSoloLetras==True:
         # validar si las encuestas son un entero y que el nombre SOLO tenga letras
-        if EsEntero == True and sinespacios.isalpha()==True:
-            datos.append(id)
-            # print("el tipo es:",type(datos[3]))
-            valorValidacion = validacion1(nombreEmpleado, idCargo)
-            if valorValidacion == True:
-                sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
-                mensaje = "Actualizado correctamente"
-                conn = mysql.connect()
-                cursor = conn.cursor()
-                cursor.execute(sql, datos)
-                conn.commit()
+        # if EsEntero == True and sinespacios.isalpha()==True:
+        datos.append(id)
+        # print("el tipo es:",type(datos[3]))
+        valorValidacion = validacion1(nombreEmpleado, idCargo)
+        if valorValidacion == True:
+            # sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
+            sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), idCargo = %s WHERE idEmpleado=%s;"
+            mensaje = "Actualizado correctamente"
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            cursor.execute(sql, datos)
+            conn.commit()
         else:
             mensaje = "no se actualizo"
     except Exception as ex:
