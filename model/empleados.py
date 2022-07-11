@@ -26,20 +26,6 @@ def validacion1(nombreEmpleado, idCargo):
             valorBool = True
     return valorBool
 
-# def validacion5(id):
-#     # sqlAux = ("SELECT AES_DECRYPT(passwordEmpleado, 'fer') as passwordEmpleado FROM empleado WHERE AES_DECRYPT(passwordEmpleado, 'fer') = %s;")
-#     cargosInsert= []
-#     sqlAux = ("SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado = %s;")
-#     conector = mysql.connect()
-#     cursor2 = conector.cursor()
-#     cursor2.execute(sqlAux, id)
-#     cargosInsert = cursor2.fetchone()
-#     list(map(lambda x : x.decode(), cargosInsert))
-#     print("el cargo es: ", cargosInsert)
-#     # valida si el id del cargo esta activo o no
-#     if len(cargosInsert)!= 0:
-#         valorBool = True
-#     return cargosInsert
 
 def validacion4(idCargo):
     valorBool = False
@@ -547,7 +533,7 @@ def EmpleadosXcargo(id):
     return datos
 
 # def UpdateXAdmin(id):
-#     try:
+#    try:
 #         resultado = []
 #         exito = True
 #         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;"
