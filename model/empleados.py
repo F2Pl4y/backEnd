@@ -44,7 +44,7 @@ def validacion4(idCargo):
 def validacion2(id):
     valorBool = False
     cargosInsert = []
-    sqlAux = ("SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 2;")
+    sqlAux = ("SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;")
     conector = mysql.connect()
     cursor2 = conector.cursor()
     cursor2.execute(sqlAux,id)
@@ -72,7 +72,7 @@ def empleadoSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo != 2 AND estado = 1;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo != 1 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -106,7 +106,7 @@ def empleadoAdminSel():
     exito = True
     try:
         # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 1 AND estado = 1;"
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, idCargo FROM empleado WHERE idCargo = 2 AND estado = 1;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, idCargo FROM empleado WHERE idCargo = 1 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -381,7 +381,7 @@ def cargosSel():
 def cargosGet(id):
     exito = True
     try:
-        sql = "SELECT idCargo, nombreCargo FROM cargo WHERE idCargo=%s;"
+        sql = "SELECT idCargo, nombreCargo FROM cargo WHERE idCargo = %s;"
         conector = mysql.connect()
         cursor = conector.cursor()
         cursor.execute(sql, id)
@@ -433,7 +433,7 @@ def cargosUpdate(id):
         datos.append(id)
         mensaje = ""
         sql = ""
-        sql = "UPDATE cargo SET nombreCargo = %s WHERE idCargo=%s;"
+        sql = "UPDATE cargo SET nombreCargo = %s WHERE idCargo = %s;"
         mensaje = "Actualizado correctamente"
         conn = mysql.connect()
         cursor = conn.cursor()
@@ -453,7 +453,7 @@ def cargosDeshabilitado(id):
         validacion = validacion2(id)
         if id !=1 :
             if (validacion == True):
-                sql = "UPDATE cargo SET estado = 2 WHERE idCargo=%s;"
+                sql = "UPDATE cargo SET estado = 2 WHERE idCargo = %s;"
                 conector = mysql.connect()
                 cursor = conector.cursor()
                 cursor.execute(sql, id)
@@ -474,7 +474,7 @@ def cargosDeshabilitado(id):
                         "idCargo": fila[5]
                     }
                     resultado.append(Datosempleados)
-                sql = "UPDATE cargo SET estado = 1 WHERE idCargo=%s;"
+                sql = "UPDATE cargo SET estado = 1 WHERE idCargo = %s;"
                 conector = mysql.connect()
                 cursor = conector.cursor()
                 cursor.execute(sql,id)
@@ -577,7 +577,7 @@ def empleadoLoginGet(id):
                 "correoEmpleado": dato[2],
                 "encuestasRealizadas": dato[3],
                 "estado": dato[4],
-                "nombreCargo": dato[5],
+                "nombreCargo": dato[5]
             }
         else:
             resultado = "No se ha encontrado al empleado"
