@@ -1,6 +1,7 @@
 import re
 from flask import Blueprint, jsonify, request, make_response
 from util.Connection import Connection
+
 conexion = Connection()
 platillos = Blueprint("platillos", __name__)
 mysql = conexion.mysql
@@ -34,7 +35,7 @@ def platilloGetInterno(id):
     return [resultado, exito]
 
 @platillos.route("/platillos/selectCateg/<int:idCateg>/", methods=["GET"])
-def platillsoSelectCateg(idCateg):
+def platillosSelectCateg(idCateg):
     resultado = []
     exito = True
     try:
@@ -63,7 +64,7 @@ def platillsoSelectCateg(idCateg):
     return jsonify({"resultado": resultado, "exito": exito})
 
 @platillos.route("/platillos/select/", methods=["GET"])
-def platillsoSelect():
+def platillosSelect():
     resultado = []
     exito = True
     try:

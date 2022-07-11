@@ -16,7 +16,7 @@ def validacion1(nombreEmpleado, idCargo):
     # valida que el nombre tenga como minimo 3 caracteres
     if len(nombreEmpleado) >= 3 :
         cargosInsert= []
-        sqlAux = ("SELECT idCargo FROM cargo WHERE idCargo =%s AND estado = 1;")
+        sqlAux = ("SELECT idCargo FROM cargo WHERE idCargo = %s AND estado = 1;")
         conector = mysql.connect()
         cursor2 = conector.cursor()
         cursor2.execute(sqlAux, idCargo)
@@ -31,7 +31,7 @@ def validacion4(idCargo):
     valorBool = False
     # valida que el nombre tenga como minimo 3 caracteres
     cargosInsert= []
-    sqlAux = ("SELECT idCargo FROM cargo WHERE idCargo =%s AND estado = 1;")
+    sqlAux = ("SELECT idCargo FROM cargo WHERE idCargo = %s AND estado = 1;")
     conector = mysql.connect()
     cursor2 = conector.cursor()
     cursor2.execute(sqlAux,idCargo)
@@ -44,7 +44,7 @@ def validacion4(idCargo):
 def validacion2(id):
     valorBool = False
     cargosInsert = []
-    sqlAux = ("SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;")
+    sqlAux = ("SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 2;")
     conector = mysql.connect()
     cursor2 = conector.cursor()
     cursor2.execute(sqlAux,id)
@@ -72,7 +72,7 @@ def empleadoSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo != 1 AND estado = 1;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo != 2 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -106,7 +106,7 @@ def empleadoAdminSel():
     exito = True
     try:
         # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 1 AND estado = 1;"
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, idCargo FROM empleado WHERE idCargo = 1 AND estado = 1;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, idCargo FROM empleado WHERE idCargo = 2 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -254,8 +254,8 @@ def empleadoCreateUpdate(id):
         correoEmpleado = request.form["txtcorreoEmpleado"]
         passwordEmpleado = request.form["txtpasswordEmpleado"]
         idCargo = request.form["txtidCargo"]
-        validarContraseña = request.form["txtContraseñaAdmin"]
-        validarContraseña2 = validarContraseña
+        # validarContraseña = request.form["txtContraseñaAdmin"]
+        # validarContraseña2 = validarContraseña
         # print("el ipcargo es: ",idCargo)
         # encuestasRealizadas = request.form["txtencuestasRealizadas"]
         nombreEmpleado = strip_tags(nombreEmpleado)
@@ -280,13 +280,13 @@ def empleadoCreateUpdate(id):
             )
             passwordEmpleado = cursor.fetchone()
             datos[2] = passwordEmpleado
-        sqlAuxValidarContraseña = ("SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado = %s;")
-        conector = mysql.connect()
-        cursor2 = conector.cursor()
-        cursor2.execute(sqlAuxValidarContraseña, id)
-        validarContraseña2 = cursor2.fetchone()
-        validarContraseña2 = [x.decode() for x in validarContraseña2]
-        validarContraseña2 = "".join(validarContraseña2)
+        # sqlAuxValidarContraseña = ("SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado = %s;")
+        # conector = mysql.connect()
+        # cursor2 = conector.cursor()
+        # cursor2.execute(sqlAuxValidarContraseña, id)
+        # validarContraseña2 = cursor2.fetchone()
+        # validarContraseña2 = [x.decode() for x in validarContraseña2]
+        # validarContraseña2 = "".join(validarContraseña2)
         # valornuevo = "".join(validarContraseña2)
         # if type(datos[3]) == int:
         EsEntero = datos[3].isnumeric()
@@ -301,18 +301,18 @@ def empleadoCreateUpdate(id):
         valorValidacion = validacion1(nombreEmpleado, idCargo)
         # valorValidacion2 = validacion5(id)
         
-        print("la validacion de la contraseña : ",validarContraseña2)
-        print("la validacion de validarContraseña : ",validarContraseña)
+        # print("la validacion de la contraseña : ",validarContraseña2)
+        # print("la validacion de validarContraseña : ",validarContraseña)
         # print("el valor de idcargo es: ",idCargo)
         if valorValidacion == True:
-            if  validarContraseña == validarContraseña2:
+            # if  validarContraseña == validarContraseña2:
             # sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
-                sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), idCargo = %s WHERE idEmpleado=%s;"
-                mensaje = "Actualizado correctamente"
-                conn = mysql.connect()
-                cursor = conn.cursor()
-                cursor.execute(sql, datos)
-                conn.commit()
+            sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), idCargo = %s WHERE idEmpleado=%s;"
+            mensaje = "Actualizado correctamente"
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            cursor.execute(sql, datos)
+            conn.commit()
             # else:
             #     print("no eres admin")
         else:
@@ -353,7 +353,7 @@ def cargosSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 1;"
+        sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 2;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
