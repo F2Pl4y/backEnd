@@ -19,12 +19,27 @@ def validacion1(nombreEmpleado, idCargo):
         sqlAux = ("SELECT idCargo FROM cargo WHERE idCargo =%s AND estado = 1;")
         conector = mysql.connect()
         cursor2 = conector.cursor()
-        cursor2.execute(sqlAux,idCargo)
+        cursor2.execute(sqlAux, idCargo)
         cargosInsert = cursor2.fetchall()
         # valida si el id del cargo esta activo o no
         if len(cargosInsert)!= 0:
             valorBool = True
     return valorBool
+
+# def validacion5(id):
+#     # sqlAux = ("SELECT AES_DECRYPT(passwordEmpleado, 'fer') as passwordEmpleado FROM empleado WHERE AES_DECRYPT(passwordEmpleado, 'fer') = %s;")
+#     cargosInsert= []
+#     sqlAux = ("SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado = %s;")
+#     conector = mysql.connect()
+#     cursor2 = conector.cursor()
+#     cursor2.execute(sqlAux, id)
+#     cargosInsert = cursor2.fetchone()
+#     list(map(lambda x : x.decode(), cargosInsert))
+#     print("el cargo es: ", cargosInsert)
+#     # valida si el id del cargo esta activo o no
+#     if len(cargosInsert)!= 0:
+#         valorBool = True
+#     return cargosInsert
 
 def validacion4(idCargo):
     valorBool = False
@@ -104,7 +119,8 @@ def empleadoAdminSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 1 AND estado = 1;"
+        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = 1 AND estado = 1;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, idCargo FROM empleado WHERE idCargo = 1 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -122,9 +138,9 @@ def empleadoAdminSel():
                     "idEmpleado": fila[0],
                     "nombreEmpleado": fila[1],
                     "correoEmpleado": fila[2],
-                    "encuestasRealizadas": fila[3],
-                    "estado": fila[4],
-                    "idCargo": fila[5],
+                    # "encuestasRealizadas": fila[3],
+                    # "estado": fila[4],
+                    "idCargo": fila[3]
                 }
                 resultado.append(Datosempleados)
     except Exception as ex:
@@ -251,16 +267,15 @@ def empleadoCreateUpdate(id):
         nombreEmpleado = request.form["txtnombreEmpleado"]
         correoEmpleado = request.form["txtcorreoEmpleado"]
         passwordEmpleado = request.form["txtpasswordEmpleado"]
-        # encuestasRealizadas = request.form["txtencuestasRealizadas"]
         idCargo = request.form["txtidCargo"]
+        validarContraseña = request.form["txtContraseñaAdmin"]
+        validarContraseña2 = validarContraseña
+        # print("el ipcargo es: ",idCargo)
+        # encuestasRealizadas = request.form["txtencuestasRealizadas"]
         nombreEmpleado = strip_tags(nombreEmpleado)
         correoEmpleado = strip_tags(correoEmpleado)
         passwordEmpleado = strip_tags(passwordEmpleado)
         sinespacios= nombreEmpleado.replace(' ', '')
-        # <a href="https://www.google.com/">fer nando</a>
-        # print("el nombre original es:", nombreEmpleado)
-        # print("sinespacios---> ",sinespacios.strip())
-        # print("sinespacios---> ",sinespacios.isalpha())
         datos = [
             nombreEmpleado,
             correoEmpleado,
@@ -279,10 +294,14 @@ def empleadoCreateUpdate(id):
             )
             passwordEmpleado = cursor.fetchone()
             datos[2] = passwordEmpleado
-        # print("valor de las encuestas:",datos[3])
-        # print("valor del nombre:",datos[0])
-        # print("el tipo nombre es:",type(datos[0]))
-        # print("el tipo encuesta es:",type(datos[3]))
+        sqlAuxValidarContraseña = ("SELECT AES_DECRYPT(passwordEmpleado, 'fer') FROM empleado WHERE idEmpleado = %s;")
+        conector = mysql.connect()
+        cursor2 = conector.cursor()
+        cursor2.execute(sqlAuxValidarContraseña, id)
+        validarContraseña2 = cursor2.fetchone()
+        validarContraseña2 = [x.decode() for x in validarContraseña2]
+        validarContraseña2 = "".join(validarContraseña2)
+        # valornuevo = "".join(validarContraseña2)
         # if type(datos[3]) == int:
         EsEntero = datos[3].isnumeric()
         EsSoloLetras = datos[0].isalpha()
@@ -291,20 +310,29 @@ def empleadoCreateUpdate(id):
         # validar si las encuestas son un entero y que el nombre SOLO tenga letras
         # if EsEntero == True and sinespacios.isalpha()==True:
         datos.append(id)
+        # print("el id es: ",id)
         # print("el tipo es:",type(datos[3]))
         valorValidacion = validacion1(nombreEmpleado, idCargo)
+        # valorValidacion2 = validacion5(id)
+        
+        print("la validacion de la contraseña : ",validarContraseña2)
+        print("la validacion de validarContraseña : ",validarContraseña)
+        # print("el valor de idcargo es: ",idCargo)
         if valorValidacion == True:
+            if  validarContraseña == validarContraseña2:
             # sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
-            sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), idCargo = %s WHERE idEmpleado=%s;"
-            mensaje = "Actualizado correctamente"
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            cursor.execute(sql, datos)
-            conn.commit()
+                sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'fer'), idCargo = %s WHERE idEmpleado=%s;"
+                mensaje = "Actualizado correctamente"
+                conn = mysql.connect()
+                cursor = conn.cursor()
+                cursor.execute(sql, datos)
+                conn.commit()
+            # else:
+            #     print("no eres admin")
         else:
             mensaje = "no se actualizo"
     except Exception as ex:
-        mensaje = "Error en la ejecucion empleados / update/"
+        mensaje = "Error en la ejecucion empleados / update /"
     return jsonify({"mensaje": mensaje})
 
 @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
@@ -339,7 +367,7 @@ def cargosSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT * FROM cargo WHERE estado = 1;"
+        sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -427,7 +455,7 @@ def cargosUpdate(id):
         cursor.execute(sql, datos)
         conn.commit()
     except Exception as ex:
-        mensaje = "Error en la ejecucion cargos/update/"
+        mensaje = "Error en la ejecucion cargos / update/"
     return jsonify({"mensaje": mensaje})
 
 @empleados.route("/cargos/update2/<int:id>/", methods=["PUT"])
@@ -473,7 +501,6 @@ def cargosDeshabilitado(id):
     # return jsonify({"resultado": resultado, "exito": exito, "mensaje":mensaje})
     return jsonify({"resultado": resultado, "exito": exito, "cargo": id})
 
-# @empleados.route("/empleado/selectX/<int:id>/", methods=["GET"])
 # me devuelve los valores de empleado
 def EmpleadosXcargo(id):
     try:
@@ -518,6 +545,50 @@ def EmpleadosXcargo(id):
     # return jsonify({"resultado": resultado, "exito": exito})
     # return jsonify({"resultado": resultado})
     return datos
+
+# def UpdateXAdmin(id):
+#     try:
+#         resultado = []
+#         exito = True
+#         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;"
+#         # conectarme a la BD
+#         conector = mysql.connect()
+#         # almacenar informacion
+#         cursor = conector.cursor()
+#         # ejecutar la sentencia
+#         cursor.execute(sql, id)
+#         # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
+#         datos = cursor.fetchall()
+#         # print("los datos son", len(datos))
+#         if len(datos) == 0:
+#             Datosempleados = {
+#                 "idEmpleado": 0,
+#                 "nombreEmpleado": "0",
+#                 "correoEmpleado": "0",
+#                 "encuestasRealizadas": 0,
+#                 "estado": 0,
+#                 "idCargo": 0
+#             }
+#             resultado.append(Datosempleados)
+#             exito = True
+#             # resultado = "No existen datos en la tabla"
+#         else:
+#             for fila in datos:
+#                 Datosempleados = {
+#                     "idEmpleado": fila[0],
+#                     "nombreEmpleado": fila[1],
+#                     "correoEmpleado": fila[2],
+#                     "encuestasRealizadas": fila[3],
+#                     "estado": fila[4],
+#                     "idCargo": fila[5]
+#                 }
+#                 resultado.append(Datosempleados)
+#     except Exception as ex:
+#         resultado = "Ocurrio un error en la realizacion de la consulta /empleado/selectX/"
+#         exito = False
+#     # return jsonify({"resultado": resultado, "exito": exito})
+#     # return jsonify({"resultado": resultado})
+#     return datos
 
 @empleados.route("/EmpleadosXcargo/select/<int:id>/", methods=["GET"])
 def EmpleadosXcargoRoute(id):
