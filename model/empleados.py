@@ -295,10 +295,10 @@ def empleadoCreateUpdate(id):
         # if EsEntero == True and EsSoloLetras==True:
         # validar si las encuestas son un entero y que el nombre SOLO tenga letras
         # if EsEntero == True and sinespacios.isalpha()==True:
+        valorValidacion = validacion1(nombreEmpleado, idCargo)
         datos.append(id)
         # print("el id es: ",id)
         # print("el tipo es:",type(datos[3]))
-        valorValidacion = validacion1(nombreEmpleado, idCargo)
         # valorValidacion2 = validacion5(id)
         
         # print("la validacion de la contraseña : ",validarContraseña2)
@@ -313,8 +313,6 @@ def empleadoCreateUpdate(id):
             cursor = conn.cursor()
             cursor.execute(sql, datos)
             conn.commit()
-            # else:
-            #     print("no eres admin")
         else:
             mensaje = "no se actualizo"
     except Exception as ex:
@@ -353,7 +351,8 @@ def cargosSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 2;"
+        # sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 1;"
+        sql = "SELECT * FROM cargo WHERE estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
