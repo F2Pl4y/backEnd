@@ -528,54 +528,7 @@ def EmpleadosXcargo(id):
     except Exception as ex:
         resultado = "Ocurrio un error en la realizacion de la consulta /empleado/selectX/"
         exito = False
-    # return jsonify({"resultado": resultado, "exito": exito})
-    # return jsonify({"resultado": resultado})
     return datos
-
-# def UpdateXAdmin(id):
-#    try:
-#         resultado = []
-#         exito = True
-#         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;"
-#         # conectarme a la BD
-#         conector = mysql.connect()
-#         # almacenar informacion
-#         cursor = conector.cursor()
-#         # ejecutar la sentencia
-#         cursor.execute(sql, id)
-#         # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
-#         datos = cursor.fetchall()
-#         # print("los datos son", len(datos))
-#         if len(datos) == 0:
-#             Datosempleados = {
-#                 "idEmpleado": 0,
-#                 "nombreEmpleado": "0",
-#                 "correoEmpleado": "0",
-#                 "encuestasRealizadas": 0,
-#                 "estado": 0,
-#                 "idCargo": 0
-#             }
-#             resultado.append(Datosempleados)
-#             exito = True
-#             # resultado = "No existen datos en la tabla"
-#         else:
-#             for fila in datos:
-#                 Datosempleados = {
-#                     "idEmpleado": fila[0],
-#                     "nombreEmpleado": fila[1],
-#                     "correoEmpleado": fila[2],
-#                     "encuestasRealizadas": fila[3],
-#                     "estado": fila[4],
-#                     "idCargo": fila[5]
-#                 }
-#                 resultado.append(Datosempleados)
-#     except Exception as ex:
-#         resultado = "Ocurrio un error en la realizacion de la consulta /empleado/selectX/"
-#         exito = False
-#     # return jsonify({"resultado": resultado, "exito": exito})
-#     # return jsonify({"resultado": resultado})
-#     return datos
-
 @empleados.route("/EmpleadosXcargo/select/<int:id>/", methods=["GET"])
 def EmpleadosXcargoRoute(id):
     try:
