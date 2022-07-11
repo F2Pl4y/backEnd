@@ -72,7 +72,7 @@ def empleadoSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo != 1 AND estado = 1;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo, nombreCargo FROM empleado WHERE idCargo != 1 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -92,7 +92,8 @@ def empleadoSel():
                     "correoEmpleado": fila[2],
                     "encuestasRealizadas": fila[3],
                     "estado": fila[4],
-                    "idCargo": fila[5]
+                    "idCargo": fila[5],
+                    "nombreCargo": fila[6]
                 }
                 resultado.append(Datosempleados)
     except Exception as ex:
@@ -346,6 +347,37 @@ def empleadoCreateUpdate2(id):
 
 
 # CRUD DE LOS CARGOS
+@empleados.route("/cargos/select2/", methods=["GET"])
+def cargosSel2():
+    resultado = []
+    exito = True
+    try:
+        # sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 1;"
+        sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo !=1;"
+        # conectarme a la BD
+        conector = mysql.connect()
+        # almacenar informacion
+        cursor = conector.cursor()
+        # ejecutar la sentencia
+        cursor.execute(sql)
+        # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
+        datos = cursor.fetchall()
+        if datos.count == 0:
+            resultado = "No existen datos en la tabla"
+            exito = False
+        else:
+            for fila in datos:
+                Datosempleados = {
+                    "idCargo": fila[0],
+                    "nombreCargo": fila[1],
+                    "estado": fila[2]
+                }
+                resultado.append(Datosempleados)
+    except Exception as ex:
+        resultado = "Ocurrio un error en la realizacion de la consulta"
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
+
 @empleados.route("/cargos/select/", methods=["GET"])
 def cargosSel():
     resultado = []
