@@ -72,7 +72,7 @@ def empleadoSel():
     resultado = []
     exito = True
     try:
-        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo, nombreCargo FROM empleado WHERE idCargo != 1 AND estado = 1;"
+        sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo != 1 AND estado = 1;"
         # conectarme a la BD
         conector = mysql.connect()
         # almacenar informacion
@@ -93,7 +93,7 @@ def empleadoSel():
                     "encuestasRealizadas": fila[3],
                     "estado": fila[4],
                     "idCargo": fila[5],
-                    "nombreCargo": fila[6]
+                    # "nombreCargo": fila[6]
                 }
                 resultado.append(Datosempleados)
     except Exception as ex:
