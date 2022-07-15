@@ -7,6 +7,38 @@ empleados = Blueprint("empleados", __name__)
 mysql = conexion.mysql
 
 # INICIO DE FUNCIONES DENTRO DEL ENTORNO VIRTUAL
+
+# val = string_to_int('10')
+def ValidarSesionUpdate(id):
+    # cargosInsert= []
+    sqlAux = ("SELECT idEmpleado  FROM empleado WHERE idEmpleado  = %s AND estado = 1;")
+    conector = mysql.connect()
+    cursor2 = conector.cursor()
+    cursor2.execute(sqlAux,(id))
+    cargosInsert = cursor2.fetchone()
+    lista_a_string = cargosInsert
+    lista_a_string = "".join([str(i) for i in lista_a_string])
+    lista_a_string = int(lista_a_string)
+    return lista_a_string
+    # Se puede usar un while para el fetchone (NO BORRAR)
+    # while cargosInsert is not None:
+    #     print(cargosInsert)
+    #     idSesion = cargosInsert
+    #     cargosInsert = cursor2.fetchone()
+
+# @empleados.route("/empleados/borrarPrueba/<int:id>/", methods=["GET"])
+# def empleadoDeletePrueba(id):
+#     try:
+#         validarDelete = ValidarSesionUpdate(id)
+#         if id == validarDelete:
+#             print("el id: ", id, "es igual a validarDelete:",validarDelete)
+#         mensaje = "El metodo delete se ha ejecutado exitosamente"
+#         exito = True
+#     except Exception as ex:
+#         mensaje = repr(ex)
+#         exito = False
+#     return jsonify({"resultado": mensaje, "exito": exito})
+
 # bloquea las inyecciones html
 def strip_tags(value):
     return re.sub(r'<[^>]*?>', '', value)
@@ -25,7 +57,6 @@ def validacion1(nombreEmpleado, idCargo):
         if len(cargosInsert)!= 0:
             valorBool = True
     return valorBool
-
 
 def validacion4(idCargo):
     valorBool = False
@@ -189,13 +220,19 @@ def empleadoXcargoGet(id):
 @empleados.route("/empleados/delete/<int:id>/", methods=["DELETE"])
 def empleadoDelete(id):
     try:
-        sql = "DELETE FROM empleado WHERE idEmpleado=%s;"
-        conector = mysql.connect()
-        cursor = conector.cursor()
-        cursor.execute(sql, id)
-        conector.commit()
-        mensaje = "El metodo delete se ha ejecutado exitosamente"
-        exito = True
+        validarDelete = ValidarSesionUpdate(id)
+        if id != validarDelete:
+            sql = "DELETE FROM empleado WHERE idEmpleado=%s;"
+            conector = mysql.connect()
+            cursor = conector.cursor()
+            cursor.execute(sql, id)
+            conector.commit()
+            mensaje = "El metodo delete se ha ejecutado exitosamente"
+            exito = True
+        else:
+            # mensaje = "No puedes eliminar a este administrador si estas logeado con dicha cuenta"
+            mensaje = "Estás conectado con esta cuenta, no puedes eliminarla"
+            exito = False
     except Exception as ex:
         mensaje = "Ocurrio un error al eliminar el empleado"
         exito = False
@@ -256,8 +293,8 @@ def empleadoCreateUpdate(id):
         correoEmpleado = request.form["txtcorreoEmpleado"]
         passwordEmpleado = request.form["txtpasswordEmpleado"]
         idCargo = request.form["txtidCargo"]
-        # validarContraseña = request.form["txtContraseñaAdmin"]
-        # validarContraseña2 = validarContraseña
+        validarContraseña = request.form["txtContraseñaAdmin"]
+        validarContraseña2 = validarContraseña
         # print("el ipcargo es: ",idCargo)
         # encuestasRealizadas = request.form["txtencuestasRealizadas"]
         nombreEmpleado = strip_tags(nombreEmpleado)
@@ -282,14 +319,14 @@ def empleadoCreateUpdate(id):
             )
             passwordEmpleado = cursor.fetchone()
             datos[2] = passwordEmpleado
-        # sqlAuxValidarContraseña = ("SELECT AES_DECRYPT(passwordEmpleado, 'claveFer') FROM empleado WHERE idEmpleado = %s;")
-        # conector = mysql.connect()
-        # cursor2 = conector.cursor()
-        # cursor2.execute(sqlAuxValidarContraseña, id)
-        # validarContraseña2 = cursor2.fetchone()
-        # validarContraseña2 = [x.decode() for x in validarContraseña2]
-        # validarContraseña2 = "".join(validarContraseña2)
-        # valornuevo = "".join(validarContraseña2)
+        sqlAuxValidarContraseña = ("SELECT AES_DECRYPT( UNHEX(passwordEmpleado), 'claveFer') FROM empleado WHERE idEmpleado = %s;")
+        conector = mysql.connect()
+        cursor2 = conector.cursor()
+        cursor2.execute(sqlAuxValidarContraseña, id)
+        validarContraseña2 = cursor2.fetchone()
+        # print("validarContraseña2 es: ",validarContraseña2)
+        validarContraseña2 = [x.decode() for x in validarContraseña2]
+        validarContraseña2 = "".join(validarContraseña2)
         # if type(datos[3]) == int:
         EsEntero = datos[3].isnumeric()
         EsSoloLetras = datos[0].isalpha()
@@ -308,14 +345,14 @@ def empleadoCreateUpdate(id):
             # print("la validacion de validarContraseña : ",validarContraseña)
             # print("el valor de idcargo es: ",idCargo)
             if valorValidacion == True:
-                # if  validarContraseña == validarContraseña2:
+                if  validarContraseña == validarContraseña2:
                 # sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'claveFer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
-                sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = HEX(AES_ENCRYPT(%s, 'claveFer')), idCargo = %s WHERE idEmpleado=%s;"
-                mensaje = "Actualizado correctamente"
-                conn = mysql.connect()
-                cursor = conn.cursor()
-                cursor.execute(sql, datos)
-                conn.commit()
+                    sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = HEX(AES_ENCRYPT(%s, 'claveFer')), idCargo = %s WHERE idEmpleado=%s;"
+                    mensaje = "Actualizado correctamente"
+                    conn = mysql.connect()
+                    cursor = conn.cursor()
+                    cursor.execute(sql, datos)
+                    conn.commit()
             else:
                 mensaje = "no se actualizo"
     except Exception as ex:
@@ -346,255 +383,6 @@ def empleadoCreateUpdate2(id):
     except Exception as ex:
         mensaje = "Error en la ejecucion empleados / update2 /"
     return jsonify({"mensaje": mensaje})
-
-
-# CRUD DE LOS CARGOS
-# @empleados.route("/cargos/select2/", methods=["GET"])
-# def cargosSel2():
-#     resultado = []
-#     exito = True
-#     try:
-#         # sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 1;"
-#         sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo !=1;"
-#         # conectarme a la BD
-#         conector = mysql.connect()
-#         # almacenar informacion
-#         cursor = conector.cursor()
-#         # ejecutar la sentencia
-#         cursor.execute(sql)
-#         # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
-#         datos = cursor.fetchall()
-#         if datos.count == 0:
-#             resultado = "No existen datos en la tabla"
-#             exito = False
-#         else:
-#             for fila in datos:
-#                 Datosempleados = {
-#                     "idCargo": fila[0],
-#                     "nombreCargo": fila[1],
-#                     "estado": fila[2]
-#                 }
-#                 resultado.append(Datosempleados)
-#     except Exception as ex:
-#         resultado = "Ocurrio un error en la realizacion de la consulta"
-#         exito = False
-#     return jsonify({"resultado": resultado, "exito": exito})
-
-# @empleados.route("/cargos/select/", methods=["GET"])
-# def cargosSel():
-#     resultado = []
-#     exito = True
-#     try:
-#         # sql = "SELECT * FROM cargo WHERE estado = 1 AND idCargo != 1;"
-#         sql = "SELECT * FROM cargo WHERE estado = 1;"
-#         # conectarme a la BD
-#         conector = mysql.connect()
-#         # almacenar informacion
-#         cursor = conector.cursor()
-#         # ejecutar la sentencia
-#         cursor.execute(sql)
-#         # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
-#         datos = cursor.fetchall()
-#         if datos.count == 0:
-#             resultado = "No existen datos en la tabla"
-#             exito = False
-#         else:
-#             for fila in datos:
-#                 Datosempleados = {
-#                     "idCargo": fila[0],
-#                     "nombreCargo": fila[1],
-#                     "estado": fila[2]
-#                 }
-#                 resultado.append(Datosempleados)
-#     except Exception as ex:
-#         resultado = "Ocurrio un error en la realizacion de la consulta"
-#         exito = False
-#     return jsonify({"resultado": resultado, "exito": exito})
-
-# @empleados.route("/cargos/get/<int:id>/", methods=["GET"])
-# def cargosGet(id):
-#     exito = True
-#     try:
-#         sql = "SELECT idCargo, nombreCargo FROM cargo WHERE idCargo = %s;"
-#         conector = mysql.connect()
-#         cursor = conector.cursor()
-#         cursor.execute(sql, id)
-#         dato = cursor.fetchone()
-#         if dato != None:
-#             resultado = {
-#                 "idCargo2": dato[0],
-#                 "nombreCargo2": dato[1]
-#             }
-#         else:
-#             resultado = "No se ha encontrado al empleado"
-#             exito = False
-#     except Exception as ex:
-#         resultado = "Ocurrio un error al realizar la consulta"
-#         exito = False
-#     return jsonify({"resultado": resultado, "exito": exito})
-    
-# @empleados.route("/cargos/create/", methods=["POST"], defaults={"id": None})
-# def cargosInsert(id):
-#     try:
-#         nombreCargo = request.form["txtnombreCargo"]
-#         nombreCargo = strip_tags(nombreCargo)
-#         datos = [
-#             nombreCargo
-#         ]
-#         mensaje = ""
-#         sql = ""
-#         validacion = validacion3(nombreCargo)
-#         if id == None:
-#             if validacion == True:
-#                 sql = "INSERT INTO cargo(nombreCargo) VALUES(%s);"
-#                 mensaje = "Insertado correctamente"
-#                 conn = mysql.connect()
-#                 cursor = conn.cursor()
-#                 cursor.execute(sql, datos)
-#                 conn.commit()
-#     except Exception as ex:
-#         mensaje = "Error en la ejecucion cargos/create/"
-#     return jsonify({"mensaje": mensaje})
-
-# @empleados.route("/cargos/update/<int:id>/", methods=["PUT"])
-# def cargosUpdate(id):
-#     try:
-#         nombreCargo = request.form["txtnombreCargo2"]
-#         nombreCargo = strip_tags(nombreCargo)
-#         datos = [
-#             nombreCargo
-#         ]
-#         datos.append(id)
-#         mensaje = ""
-#         sql = ""
-#         sql = "UPDATE cargo SET nombreCargo = %s WHERE idCargo = %s;"
-#         mensaje = "Actualizado correctamente"
-#         conn = mysql.connect()
-#         cursor = conn.cursor()
-#         cursor.execute(sql, datos)
-#         conn.commit()
-#     except Exception as ex:
-#         mensaje = "Error en la ejecucion cargos / update/"
-#     return jsonify({"mensaje": mensaje})
-
-# @empleados.route("/cargos/update2/<int:id>/", methods=["PUT"])
-# def cargosDeshabilitado(id):
-#     try:
-#         validacion = False
-#         resultado = []
-#         datos =[]
-#         datos.append(id)
-#         validacion = validacion2(id)
-#         if id !=1 :
-#             if (validacion == True):
-#                 sql = "UPDATE cargo SET estado = 2 WHERE idCargo = %s;"
-#                 conector = mysql.connect()
-#                 cursor = conector.cursor()
-#                 cursor.execute(sql, id)
-#                 conector.commit()
-#                 # mensaje = "el cargo se ha inhabilitado exitosamente"
-#                 exito = True
-#             else:
-#                 datos2 = []
-#                 datos2 = EmpleadosXcargo(id)
-#                 # print("los datos2 son: ",datos2)
-#                 for fila in datos2:
-#                     Datosempleados = {
-#                         "idEmpleado": fila[0],
-#                         "nombreEmpleado": fila[1],
-#                         "correoEmpleado": fila[2],
-#                         "encuestasRealizadas": fila[3],
-#                         "estado": fila[4],
-#                         "idCargo": fila[5]
-#                     }
-#                     resultado.append(Datosempleados)
-#                 sql = "UPDATE cargo SET estado = 1 WHERE idCargo = %s;"
-#                 conector = mysql.connect()
-#                 cursor = conector.cursor()
-#                 cursor.execute(sql,id)
-#                 conector.commit()
-#                 exito = True
-#     except Exception as ex:
-#         mensaje = "El id se coloca con otro metodo"
-#         exito = False
-#     # return jsonify({"resultado": resultado, "exito": exito, "mensaje":mensaje})
-#     return jsonify({"resultado": resultado, "exito": exito, "cargo": id})
-
-# # me devuelve los valores de empleado
-# def EmpleadosXcargo(id):
-#     try:
-#         resultado = []
-#         exito = True
-#         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;"
-#         # conectarme a la BD
-#         conector = mysql.connect()
-#         # almacenar informacion
-#         cursor = conector.cursor()
-#         # ejecutar la sentencia
-#         cursor.execute(sql, id)
-#         # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
-#         datos = cursor.fetchall()
-#         # print("los datos son", len(datos))
-#         if len(datos) == 0:
-#             Datosempleados = {
-#                 "idEmpleado": 0,
-#                 "nombreEmpleado": "0",
-#                 "correoEmpleado": "0",
-#                 "encuestasRealizadas": 0,
-#                 "estado": 0,
-#                 "idCargo": 0
-#             }
-#             resultado.append(Datosempleados)
-#             exito = True
-#             # resultado = "No existen datos en la tabla"
-#         else:
-#             for fila in datos:
-#                 Datosempleados = {
-#                     "idEmpleado": fila[0],
-#                     "nombreEmpleado": fila[1],
-#                     "correoEmpleado": fila[2],
-#                     "encuestasRealizadas": fila[3],
-#                     "estado": fila[4],
-#                     "idCargo": fila[5]
-#                 }
-#                 resultado.append(Datosempleados)
-#     except Exception as ex:
-#         resultado = "Ocurrio un error en la realizacion de la consulta /empleado/selectX/"
-#         exito = False
-#     return datos
-
-# @empleados.route("/EmpleadosXcargo/select/<int:id>/", methods=["GET"])
-# def EmpleadosXcargoRoute(id):
-#     try:
-#         resultado = []
-#         exito = True
-#         sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, estado, idCargo FROM empleado WHERE idCargo = %s AND estado = 1;"
-#         # conectarme a la BD
-#         conector = mysql.connect()
-#         # almacenar informacion
-#         cursor = conector.cursor()
-#         # ejecutar la sentencia
-#         cursor.execute(sql, id)
-#         # me duelve la informacion para poder imprimirla en donde necesite, por ejemplo en la terminal con un print(datos)
-#         datos = cursor.fetchall()
-#         if len(datos) != 0:
-#             for fila in datos:
-#                 Datosempleados = {
-#                     "idEmpleado": fila[0],
-#                     "nombreEmpleado": fila[1],
-#                     "correoEmpleado": fila[2],
-#                     "encuestasRealizadas": fila[3],
-#                     "estado": fila[4],
-#                     "idCargo": fila[5]
-#                 }
-#                 resultado.append(Datosempleados)
-#         else:
-#             resultado = "No existen datos en la tabla"
-#             exito = False
-#     except Exception as ex:
-#         resultado = "Ocurrio un error en la realizacion de la consulta / EmpleadosXcargo / select"
-#         exito = False
-#     return jsonify({"resultado": resultado, "exito": exito})
 
 #abraham
 @empleados.route("/empleados/loginget/<int:id>/", methods=["GET"])

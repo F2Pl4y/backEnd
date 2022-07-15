@@ -9,7 +9,7 @@ mysql = conexion.mysql
 def strip_tags(value):
     return re.sub(r'<[^>]*?>', '', value)
 
-# validacion2: se valida el permiso para inhabilitar un cargo | lo voy a cambiar sobre si dentro del cargo hay empleados con ese id
+# validacion2: se valida el permiso para inhabilitar un Cargo | lo voy a cambiar sobre si dentro del Cargo hay empleados con ese id
 def validacion2(id):
     valorBool = False
     cargosInsert = []
