@@ -1,5 +1,6 @@
 from model.curso_routes import curso
 from model.empleados import empleados
+from model.cargos import cargos
 from util.Aplication import Aplication
 from model.categorias_routes import categorias
 from model.platillos_routes import platillos
@@ -10,6 +11,7 @@ app = aplication.app
 app.register_blueprint(empleados)
 app.register_blueprint(categorias)
 app.register_blueprint(platillos)
+app.register_blueprint(cargos)
 
 
 

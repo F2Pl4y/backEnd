@@ -1,22 +1,19 @@
-from Crypto.Cipher import AES 
-import binascii,os
-import random, string
-
-iv = os.urandom(16)
-aes_mode = AES.MODE_CBC
-key = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(16))
-print(key)
-encryptor = AES.new(key, aes_mode, iv)
-def aes_encrypt(plaintext):
-    plaintext = convert_to_16(plaintext)
-
-    ciphertext = encryptor.encrypt(plaintext)
-    return ciphertext
-
-def convert_to_16(plaintext): #Overcome the drawback of plaintxt size which should be multiple of len(iv)
-    add = 16 - (len(plaintext) % 16)
-    return(plaintext + ' ' * add)
-
-
-Encrypted = aes_encrypt('Jaisal ')
-print("Encrypted message :",Encrypted)
+# 0x636F6E7472617365C3B16168657861646563696D616C
+# sin unhex: 0x313233 
+import re
+try: 
+    hexstring = "0x7761C194BA873414775BA47CB814BECE"
+    # hexstring = []
+    # hexstring = ["0x313233", "0x646173646173","0x617364617364","0x313233","0x61736466617364","0x7364617364", "0x636F6E7472617365C3B16168657861646563696D616C"]
+    # print("si funciona le quitamos los valores: ", hexstring)
+    hexstring = hexstring.removeprefix('0x')
+    a_string = bytes.fromhex(hexstring)
+    a_string = a_string.decode("utf-8")
+    print(a_string)
+    # for contraseñas in hexstring:
+    #     contraseñas = contraseñas.removeprefix('0x')
+    #     a_string = bytes.fromhex(contraseñas)
+    #     a_string = a_string.decode("utf-8")
+    #     print(a_string)
+except Exception as ex:
+    print("FALLANDO EN: ",repr(ex))
