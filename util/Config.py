@@ -9,6 +9,12 @@ class Config:
     # MYSQL_USER = "f3rn4nd021py"
     # MYSQL_PASS = "fer1299.3py"
     # MYSQL_DB = "f3rn4nd021py$midb"
+    # INICIO DE PYTHONANYWHERE
+    # MYSQL_HOST = "f3rn4nd021py.mysql.pythonanywhere-services.com"
+    # MYSQL_USER = "f3rn4nd021py"
+    # MYSQL_PASS = "fer1299.3py"
+    # MYSQL_DB = "f3rn4nd021py$midb"
+    # FIN DE PYTHONANYWHERE
     MYSQL_HOST = "localhost"
     MYSQL_PORT = 3305
     MYSQL_USER = "root"

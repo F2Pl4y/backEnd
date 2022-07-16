@@ -8,7 +8,6 @@ mysql = conexion.mysql
 
 # INICIO DE FUNCIONES DENTRO DEL ENTORNO VIRTUAL
 
-# val = string_to_int('10')
 def ValidarSesionUpdate(id):
     # cargosInsert= []
     sqlAux = ("SELECT idEmpleado  FROM empleado WHERE idEmpleado  = %s AND estado = 1;")
@@ -16,26 +15,22 @@ def ValidarSesionUpdate(id):
     cursor2 = conector.cursor()
     cursor2.execute(sqlAux,(id))
     cargosInsert = cursor2.fetchone()
-    lista_a_string = cargosInsert
-    lista_a_string = "".join([str(i) for i in lista_a_string])
-    lista_a_string = int(lista_a_string)
-    return lista_a_string
+    cargosInsert = int(''.join(map(str, cargosInsert)))
+    return cargosInsert
     # Se puede usar un while para el fetchone (NO BORRAR)
     # while cargosInsert is not None:
     #     print(cargosInsert)
     #     idSesion = cargosInsert
     #     cargosInsert = cursor2.fetchone()
-
-# @empleados.route("/empleados/borrarPrueba/<int:id>/", methods=["GET"])
-# def empleadoDeletePrueba(id):
+# esto de aqui es de prueba, no sirve para el proyecto
+# @empleados.route("/miid/<int:id>/", methods=["GET"])
+# def obtenerID(id):
 #     try:
-#         validarDelete = ValidarSesionUpdate(id)
-#         if id == validarDelete:
-#             print("el id: ", id, "es igual a validarDelete:",validarDelete)
-#         mensaje = "El metodo delete se ha ejecutado exitosamente"
+#         valorID = ValidarSesionUpdate(id)
+#         mensaje = ""
 #         exito = True
 #     except Exception as ex:
-#         mensaje = repr(ex)
+#         mensaje = "falla: "+repr(ex)
 #         exito = False
 #     return jsonify({"resultado": mensaje, "exito": exito})
 
@@ -241,7 +236,6 @@ def empleadoDelete(id):
 # MI SELECT DEBE DE TENER PARA AUQELLOS QUE EL ESTADO SEA 1(OSEA ACTIVO)
 # LISTO
 @empleados.route("/empleados/create/", methods=["POST"], defaults={"id": None})
-# def empleadoCreateUpdate(id):
 def empleadoInsert(id):
     try:
         # estana con comilla dobles pero le pondre una
@@ -266,16 +260,6 @@ def empleadoInsert(id):
             # valida que el nombre tenga como minimo 3 caracteres
             validacion = validacion1(nombreEmpleado, idCargo)
             if validacion == True:
-            # if len(nombreEmpleado) >= 3 :
-            #     cargosInsert= []
-            #     sqlAux = ("SELECT idCargo FROM cargo WHERE idCargo =%s AND estado = 1;")
-            #     conector = mysql.connect()
-            #     cursor2 = conector.cursor()
-            #     cursor2.execute(sqlAux,idCargo)
-            #     cargosInsert = cursor2.fetchall()
-            #     # valida si el id del cargo esta activo o no
-            #     if len(cargosInsert)!= 0:
-                # sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, encuestasRealizadas, idCargo) VALUES(%s, %s, AES_ENCRYPT(%s,'claveFer'), %s, %s);"
                 sql = "INSERT INTO empleado(nombreEmpleado, correoEmpleado, passwordEmpleado, idCargo) VALUES(%s, %s, HEX(AES_ENCRYPT(%s,'claveFer')), %s);"
                 mensaje = "Insertado correctamente"
                 conn = mysql.connect()
@@ -286,6 +270,22 @@ def empleadoInsert(id):
         mensaje = "Error en la ejecucion empleados / create"
     return jsonify({"mensaje": mensaje})
 
+def empleadoDeletePrueba(id):
+    try:
+        sqlAux22 = "SELECT AES_DECRYPT( UNHEX(passwordEmpleado), 'claveFer') FROM empleado WHERE idEmpleado = %s;"
+        conector = mysql.connect()
+        cursor2 = conector.cursor()
+        cursor2.execute(sqlAux22,(id))
+        cargosInsert = cursor2.fetchone()
+        cargosInsert = [x.decode() for x in cargosInsert]
+        cargosInsert = "".join(cargosInsert)
+        mensaje = "cargosInsert: ",cargosInsert
+        exito = True
+        return cargosInsert
+    except Exception as ex:
+        mensaje = "falla: "+repr(ex)
+        exito = False
+
 @empleados.route("/empleados/update/<int:id>/", methods=["PUT"])
 def empleadoCreateUpdate(id):
     try:
@@ -295,7 +295,6 @@ def empleadoCreateUpdate(id):
         idCargo = request.form["txtidCargo"]
         validarContraseña = request.form["txtContraseñaAdmin"]
         validarContraseña2 = validarContraseña
-        # print("el ipcargo es: ",idCargo)
         # encuestasRealizadas = request.form["txtencuestasRealizadas"]
         nombreEmpleado = strip_tags(nombreEmpleado)
         correoEmpleado = strip_tags(correoEmpleado)
@@ -305,59 +304,37 @@ def empleadoCreateUpdate(id):
             nombreEmpleado,
             correoEmpleado,
             passwordEmpleado,
-            # encuestasRealizadas,
             idCargo
         ]
         mensaje = ""
         sql = ""
+        valorContraBD = "8888"
+        valorContraBD2 = []
+        valorContraBD2 = empleadoDeletePrueba(id)
+        valorContraBD = "".join(valorContraBD2)
         if passwordEmpleado == "":
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT AES_DECRYPT(UNHEX(passwordEmpleado), 'claveFer') FROM empleado WHERE idEmpleado=%s;",
-                (id)
-            )
-            passwordEmpleado = cursor.fetchone()
-            datos[2] = passwordEmpleado
-        sqlAuxValidarContraseña = ("SELECT AES_DECRYPT( UNHEX(passwordEmpleado), 'claveFer') FROM empleado WHERE idEmpleado = %s;")
-        conector = mysql.connect()
-        cursor2 = conector.cursor()
-        cursor2.execute(sqlAuxValidarContraseña, id)
-        validarContraseña2 = cursor2.fetchone()
-        # print("validarContraseña2 es: ",validarContraseña2)
-        validarContraseña2 = [x.decode() for x in validarContraseña2]
-        validarContraseña2 = "".join(validarContraseña2)
-        # if type(datos[3]) == int:
-        EsEntero = datos[3].isnumeric()
-        EsSoloLetras = datos[0].isalpha()
-        # EsSoloLetras = datos[0].isalnum()
-        # if EsEntero == True and EsSoloLetras==True:
-        # validar si las encuestas son un entero y que el nombre SOLO tenga letras
-        # if EsEntero == True and sinespacios.isalpha()==True:
+            datos[2] = empleadoDeletePrueba(id)
+            valorContraBD2 = empleadoDeletePrueba(id)
+            valorContraBD = "".join(valorContraBD2)
+            mensaje = "dentro del if vacio passwordEmpleado == ""-->valor obtenido de valorContraBD: ", valorContraBD
         if sinespacios.isalpha()==True:
             valorValidacion = validacion1(nombreEmpleado, idCargo)
             datos.append(id)
-            # print("el id es: ",id)
-            # print("el tipo es:",type(datos[3]))
-            # valorValidacion2 = validacion5(id)
-            
-            # print("la validacion de la contraseña : ",validarContraseña2)
-            # print("la validacion de validarContraseña : ",validarContraseña)
-            # print("el valor de idcargo es: ",idCargo)
             if valorValidacion == True:
-                if  validarContraseña == validarContraseña2:
-                # sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = AES_ENCRYPT(%s, 'claveFer'), encuestasRealizadas = %s, idCargo = %s WHERE idEmpleado=%s;"
+                mensaje = "estoy dentro de valorValidacion == True | valor de validarContraseña", validarContraseña, "| valor de valorContraBD", valorContraBD
+                if  (validarContraseña == valorContraBD):
                     sql = "UPDATE empleado SET nombreEmpleado = %s, correoEmpleado = %s, passwordEmpleado = HEX(AES_ENCRYPT(%s, 'claveFer')), idCargo = %s WHERE idEmpleado=%s;"
-                    mensaje = "Actualizado correctamente"
                     conn = mysql.connect()
                     cursor = conn.cursor()
                     cursor.execute(sql, datos)
                     conn.commit()
+                    mensaje = "si llegaste hasta aqui es xq actualizaste bien---> validarContraseña", validarContraseña, "|valorContraBD ",valorContraBD
             else:
                 mensaje = "no se actualizo"
     except Exception as ex:
-        mensaje = "Error en la ejecucion empleados / update /"
+        mensaje = "falla: ", repr(ex), "la contraseña es: ",validarContraseña, " y la cambiada valorContraBD es: ",valorContraBD
     return jsonify({"mensaje": mensaje})
+
 
 @empleados.route("/empleados/update2/<int:id>/", methods=["PUT"])
 def empleadoCreateUpdate2(id):
@@ -411,9 +388,6 @@ def empleadoLoginGet(id):
         exito = False
     return jsonify({"resultado": resultado, "exito": exito})
 
-        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND AES_DECRYPT(UNHEX(passwordEmpleado), 'claveFer') = %s;"
-        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = HEX(AES_ENCRYPT(%s, 'claveFer'));"
-        # sql = "SELECT idEmpleado, nombreEmpleado, correoEmpleado, encuestasRealizadas, idCargo FROM empleado WHERE correoEmpleado = %s AND passwordEmpleado = AES_ENCRYPT(%s, %s);"
 @empleados.route('/empleados/login/', methods = ['POST'])
 def loginCreate():
     exito = True
@@ -446,4 +420,4 @@ def loginCreate():
         print("FALLANDO EN: ",repr(ex))
         exito = False
         resultado = "Ocurrio un error al consultar el empleado"
-    return jsonify({'resultado':resultado, 'exito':exito}) 
+    return jsonify({'resultado':resultado, 'exito':exito})
