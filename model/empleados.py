@@ -10,7 +10,7 @@ mysql = conexion.mysql
 
 def ValidarSesionUpdate(id):
     # cargosInsert= []
-    sqlAux = ("SELECT idEmpleado  FROM empleado WHERE idEmpleado  = %s AND estado = 1;")
+    sqlAux = ("SELECT idEmpleado FROM empleado WHERE idEmpleado = %s AND estado = 1;")
     conector = mysql.connect()
     cursor2 = conector.cursor()
     cursor2.execute(sqlAux,(id))
@@ -212,11 +212,16 @@ def empleadoXcargoGet(id):
         exito = False
     return jsonify({"resultado": resultado, "exito": exito})
 
-@empleados.route("/empleados/delete/<int:id>/", methods=["DELETE"])
-def empleadoDelete(id):
+# @empleados.route("/empleados/delete/<int:id>/", methods=["DELETE"])
+@empleados.route("/empleados/delete/<int:id>/<int:id2>/", methods=["DELETE"])
+# def empleadoDelete(id,inputValue):
+def empleadoDelete(id,id2):
     try:
-        validarDelete = ValidarSesionUpdate(id)
-        if id != validarDelete:
+        print("valor del id", id)
+        # mantener la validacion (quiza sirva mas adelante)
+        # validarDelete = ValidarSesionUpdate(id)
+        print("valor de id2", id2)
+        if id != id2:
             sql = "DELETE FROM empleado WHERE idEmpleado=%s;"
             conector = mysql.connect()
             cursor = conector.cursor()
