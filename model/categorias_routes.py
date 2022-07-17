@@ -83,3 +83,30 @@ def categoriasInsert(id):
     except Exception as ex:
         mensaje = "Ocurrio un error " + repr(ex)
     return jsonify({"mensaje": mensaje})
+
+# FERNANDO
+
+@categorias.route("/categorias/select2/", methods = ["GET"])
+def categoriasSelect2():
+    resultado = []
+    exito = True
+    try:
+        sql = "SELECT idCategoria, nombreCategoria FROM categoria WHERE estado = 1"
+        conector = mysql.connect()
+        cursor = conector.cursor()
+        cursor.execute(sql)
+        datos = cursor.fetchall()
+        if datos.count == 0:
+            resultado = "No existen datos en la tabla"
+            exito = False
+        else:
+            for fila in datos:
+                categoria = {
+                    "idCategoria": fila[0],
+                    "nombreCategoria": fila[1]
+                }
+                resultado.append(categoria)
+    except Exception as ex:
+        resultado = "Ocurrio un error: " + repr(ex)
+        exito = False
+    return jsonify({"resultado": resultado, "exito": exito})
