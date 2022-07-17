@@ -33,10 +33,13 @@ import re
 #         #     print(a_string)
 #     except Exception as ex:
 #         print("FALLANDO EN: ",repr(ex))
-
-hexstring = "0x31323334"
-hexstring = hexstring.removeprefix('0x')
-a_string = bytes.fromhex(hexstring)
-a_string = a_string.decode("utf-8")
-print(a_string)
+import os
+input_images_path = '\Repositorios/backEnd/'
+files_names = os.listdir(input_images_path)
+print(files_names)
+# hexstring = "0x31323334"
+# hexstring = hexstring.removeprefix('0x')
+# a_string = bytes.fromhex(hexstring)
+# a_string = a_string.decode("utf-8")
+# print(a_string)
 
