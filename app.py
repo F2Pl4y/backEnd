@@ -14,10 +14,10 @@ from util.Connection import Connection
 aplication = Aplication()
 conexion = Connection()
 app = aplication.app
-input_images_path2 = '\Repositorios/backEnd/upload/'
-input_images_path = '\Repositorios/backEnd/upload/'
+input_images_path2 = '\Repositorios/mibackEnd/upload/productos/'
+input_images_path = '\Repositorios/mibackEnd/upload/productos/'
 mysql = conexion.mysql
-CARPETAUP = os.path.join('/Repositorios/backEnd/upload/')
+CARPETAUP = os.path.join('/Repositorios/mibackEnd/upload/productos/')
 # files_names = os.listdir(CARPETAUP)
 # print(files_names)
 app.config['CARPETAUP'] = CARPETAUP
@@ -45,10 +45,7 @@ def empleadoCreateUpdate2(id):
             cursor = conn.cursor()
             cursor.execute(sql, (id))
             fila = cursor.fetchall()
-            valor = str(os.path.join(app.config['CARPETAUP'],fila[0][0]))
-            print("el removido es: ", valor)
             os.remove(os.path.join(app.config['CARPETAUP'],fila[0][0]))
-            
             sql2 = "UPDATE misfotos SET foto = %s WHERE id=%s;"
             cursor.execute(sql2, (cambioNombre, id))
             conn.commit()
@@ -67,12 +64,6 @@ def pagina_no_encontrada(error):
 def ingreso():
     return "<h1>corriendo :)</h1>"
 
-# @app.route("/curso/foto/<string:imagen>/", methods = ['GET'])
-# def cargarImagen(imagen):
-#     image_data = open("upload/"+imagen, "rb").read()
-#     resultado = make_response(image_data)
-#     resultado.headers['Content-Type'] = 'image/png'
-#     return resultado
 
 if __name__ == "__main__":
     app.register_error_handler(404, pagina_no_encontrada)

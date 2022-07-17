@@ -98,11 +98,18 @@ def platilloGet(id):
     return jsonify({"resultado": dato[0], "exito": dato[1]})
 
 
-@platillos.route("/platillos/foto/<string:categoria>/<string:imagen>", methods = ['GET'])
-def cargarImagenPlatillo(categoria, imagen):
-    image_data = open("upload/images/"+categoria+"/"+imagen, "rb").read()
-    resultado = make_response(image_data)
-    resultado.headers['Content-Type'] = 'image/png'
+# @platillos.route("/platillos/foto/<string:categoria>/<string:imagen>", methods = ['GET'])
+@platillos.route("/platillos/foto/<string:imagen>", methods = ['GET'])
+# def cargarImagenPlatillo(categoria, imagen):
+def cargarImagenPlatillo(imagen):
+    # image_data = open("upload/images/"+categoria+"/"+imagen, "rb").read()
+    try:
+        image_data = open("\\Repositorios/mibackEnd/upload/"+imagen, "rb").read()
+        resultado = make_response(image_data)
+        resultado.headers['Content-Type'] = 'image/png'
+    except Exception as ex:
+        resultado = print("falla: "+repr(ex))
+    # return resultado
     return resultado
 
 @platillos.route("/platillos/delete/<int:id>/", methods = ['PUT'])

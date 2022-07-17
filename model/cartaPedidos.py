@@ -96,7 +96,7 @@ def insertPedido():
         #     catProducto
         # ]
         if imagenProducto.filename != '':
-            input_images_path = '\Repositorios/backEnd/upload/'
+            input_images_path = '\Repositorios/mibackEnd/upload/productos/'
             cambioNombre = tiempo+imagenProducto.filename
             # sql = "INSERT INTO  (nombreProducto, precio, descripcion, idCategoria) VALUES (%s, %s, %s, %s, %s);"
             sql = "INSERT INTO misfotos (foto) VALUES (%s);"
@@ -121,7 +121,7 @@ def insertPedido():
 
 @cartaPedidos.route("/curso/foto/<string:imagen>/", methods = ['GET'])
 def cargarImagen(imagen):
-    image_data = open('\backEnd/upload/'+imagen, "rb").read()
+    image_data = open('\Repositorios/mibackEnd/upload/productos/'+imagen, "rb").read()
     resultado = make_response(image_data)
     resultado.headers['Content-Type'] = 'image/png'
     return resultado
