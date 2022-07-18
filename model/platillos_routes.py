@@ -104,7 +104,7 @@ def platilloGet(id):
 def cargarImagenPlatillo(imagen):
     # image_data = open("upload/images/"+categoria+"/"+imagen, "rb").read()
     try:
-        image_data = open("\\Repositorios/mibackEnd/upload/"+imagen, "rb").read()
+        image_data = open("\Repositorios/mibackEnd/upload/images/"+imagen, "rb").read()
         resultado = make_response(image_data)
         resultado.headers['Content-Type'] = 'image/png'
     except Exception as ex:

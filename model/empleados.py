@@ -2,6 +2,7 @@
 import re
 from flask import Blueprint, jsonify, request
 from util.Connection import Connection
+
 conexion = Connection()
 empleados = Blueprint("empleados", __name__)
 mysql = conexion.mysql
