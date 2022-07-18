@@ -1,6 +1,7 @@
 import re
 from flask import Blueprint, jsonify, request
 from util.Connection import Connection
+import os
 
 conexion = Connection()
 categorias = Blueprint("categorias", __name__)
@@ -36,6 +37,10 @@ def categoriasSelect():
 
 @categorias.route("/categorias/get/<int:id>/", methods=["GET"])
 def cargosGet(id):
+    resultado = obtenerCategoria(id)
+    return jsonify({"resultado": resultado[0], "exito": resultado[1]})
+
+def obtenerCategoria(id):
     exito = True
     try:
         sql = "SELECT idCategoria, nombreCategoria FROM categoria WHERE idCategoria=%s;"
@@ -54,12 +59,17 @@ def cargosGet(id):
     except Exception as ex:
         resultado = "Ocurrio un error: "+repr(ex)
         exito = False
-    return jsonify({"resultado": resultado, "exito": exito})
+    return [resultado, exito]
 
 
-@categorias.route("/categorias/create/", methods=["POST"], defaults={"id":None})
+def cambiarRutaFotoPlatillos(categoria):
+    print(categoria["nombreCategoria"])
+
+
 @categorias.route("/categorias/update/<int:id>/", methods=["PUT"])
+@categorias.route("/categorias/create/", methods=["POST"], defaults={"id":None})
 def categoriasInsert(id):
+    categoria = obtenerCategoria(id)
     try:
         nombreCategoria = request.form["txtNombreCategoria"]
         nombreCategoria = strip_tags(nombreCategoria)
@@ -67,17 +77,21 @@ def categoriasInsert(id):
         if nombreCategoria != None:
             parametros = [nombreCategoria]
             if id == None:
-                sql = "INSERT INTO categoria(`nombreCategoria`) VALUES(%s);"
+                sql = "INSERT INTO categoria(nombreCategoria) VALUES (%s)"
+                os.mkdir('upload/images/'+nombreCategoria)
             else:
                 if id == 1:
                     mensaje = "Esta categoría no se puede modificar"
                 else:
                     sql = "UPDATE categoria SET nombreCategoria = %s WHERE idCategoria = %s"
                     parametros.append(id)
-                    conector = mysql.connect()
-                    cursor = conector.cursor()
-                    cursor.execute(sql,parametros)
-                    conector.commit()
+                    os.rename("upload/images/"+categoria[0]["nombreCategoria"], "upload/images/"+nombreCategoria)
+            conector = mysql.connect()
+            cursor = conector.cursor()
+            cursor.execute(sql,parametros)
+            conector.commit()
+            if id != None and id != 1:
+                cambiarRutaFotoPlatillos(categoria)
         else:
             mensaje = "Debe insertar el nombre de la categoria"
     except Exception as ex:

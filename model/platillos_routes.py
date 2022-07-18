@@ -92,6 +92,7 @@ def platillosSelect():
         exito = False
     return jsonify({"resultado": resultado, "exito": exito})
 
+
 @platillos.route("/platillos/get/<int:id>", methods=["GET"])
 def platilloGet(id):
     dato = platilloGetInterno(id)
@@ -119,7 +120,6 @@ def platillosDelete(id):
         mensaje = "Ocurrio un error "+repr(ex)
         exito = False
     return jsonify({"resultado": mensaje, "exito": exito})
-
 
 def platillosGetCategoria(id):
     exito = True
@@ -158,7 +158,6 @@ def platilloInsert():
 
         if 'imagenPlatillo' in request.files:
             nombreCategoria = platillosGetCategoria(idCategoria)[0]["nombreCategoria"]
-            nombreCategoria = "".join(nombreCategoria.split())
             ruta = nombreCategoria+"/"+imagen.filename
             imagen.save("upload/images/"+ruta)
             sql = "INSERT INTO producto(nombreProducto, precio, imagen, descripcion, idCategoria) VALUES (%s, %s, %s, %s, %s)"
@@ -172,6 +171,7 @@ def platilloInsert():
     except Exception as ex:
         mensaje = "Error en la ejecucion "+repr(ex)
     return jsonify({"mensaje": mensaje})
+
 
 @platillos.route("/platillos/update/<int:id>", methods=["PUT"])
 def platilloUpdate(id):
@@ -187,8 +187,6 @@ def platilloUpdate(id):
         idCategoria = strip_tags(idCategoria)
 
         nombreCategoria = platillosGetCategoria(idCategoria)[0]["nombreCategoria"]
-        nombreCategoria = "".join(nombreCategoria.split())
-
         if 'imagenPlatillo' in request.files:
             imagen = request.files['imagenPlatillo']
             sql = "UPDATE producto SET nombreProducto=%s, precio=%s, imagen=%s, descripcion=%s,idCategoria=%s WHERE idProducto=%s"
