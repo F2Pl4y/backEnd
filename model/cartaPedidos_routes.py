@@ -136,26 +136,41 @@ def insertPedido():
         print("antes del output")
         output = request.get_json()
         print(output)
-        print(type(output))
+        # print(type(output))
         output = json.loads(output)
-        print(output)
-        print(type(output))
+        # print(output)
+        # print(type(output))
         for key in output:
             print(key)
-            if key == "precio" or key == "idEmpleado" or key == "nombreCliente":
-                resultadoPedido.append(output[key])
-            else:
-                resultadoDetallePedido.append(output[key])
-        print("resultado es:")
+            # if key == "precio" or key == "idEmpleado" or key == "nombreCliente":
+            resultadoPedido.append(output[key])
+            # else:
+            #     resultadoDetallePedido.append(output[key])
+        print("resultado resultadoPedido es:")
         print(resultadoPedido)
-        print("resultado es:")
-        print(resultadoDetallePedido)
+        print("id empleado",resultadoPedido[3])
+        # print("resultado resultadoDetallePedido es:")
+        # print(resultadoDetallePedido)
         sql = "INSERT INTO pedido(costoTotal,idEmpleado,nombreCliente)VALUES(%s, %s, %s);"
-        # conn = mysql.connect()
-        # cursor = conn.cursor()
-        # cursor.execute(sql, resultadoPedido)
-        # conn.commit()
-        mensaje = "mensaje llegado"
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute(sql, (resultadoPedido[1], resultadoPedido[3], resultadoPedido[4]))
+        conn.commit()
+        # print("antes de la consulta")
+        sql2 = "SELECT idPedido FROM pedido WHERE idEmpleado = %s ORDER BY 1 DESC LIMIT 1;"
+        conn2 = mysql.connect()
+        cursor2 = conn2.cursor()
+        cursor2.execute(sql2, resultadoPedido[3])
+        dato = cursor2.fetchone()
+        print("EL CURSOR ME DIO: ", dato[0])
+        print("DATOS PARA LA CONSULTA inserpedido: ", resultadoPedido[1], resultadoPedido[3], resultadoPedido[4])
+        print("DATOS PARA LA CONSULTA insertDetallepedido: ", dato[0], resultadoPedido[0], resultadoPedido[5], resultadoPedido[2])
+        sql2 = "INSERT INTO detallepedido (idPedido, idProducto, cantidad, CostoDetalle) VALUES ( %s, %s, %s, %s);"
+        conn2 = mysql.connect()
+        cursor2 = conn2.cursor()
+        cursor2.execute(sql2, (dato[0], resultadoPedido[0], resultadoPedido[5], resultadoPedido[1]))
+        conn2.commit()
+        mensaje = "el mensaje a llegado :)"
     except Exception as ex:
         mensaje = "falla: " + repr(ex)
     return jsonify({"mensaje": mensaje})

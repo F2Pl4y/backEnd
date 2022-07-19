@@ -1,7 +1,7 @@
 import os
 from model.empleados import empleados
-from model.cargos import cargos
-from model.cartaPedidos import cartaPedidos
+from model.cargos_routes import cargos
+from model.cartaPedidos_routes import cartaPedidos
 from util.Aplication import Aplication
 from model.categorias_routes import categorias
 from model.platillos_routes import platillos
