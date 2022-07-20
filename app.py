@@ -5,6 +5,9 @@ from model.cartaPedidos_routes import cartaPedidos
 from util.Aplication import Aplication
 from model.categorias_routes import categorias
 from model.platillos_routes import platillos
+from model.venta_routes import ventas
+from model.pedido_routes import pedido
+from model.detallepedido_routes import detallepedido
 # agregado para foto
 from datetime import datetime
 from flask import request, jsonify, make_response
@@ -28,6 +31,12 @@ app.register_blueprint(categorias)
 app.register_blueprint(platillos)
 app.register_blueprint(cargos)
 app.register_blueprint(cartaPedidos)
+#
+app.register_blueprint(ventas)
+app.register_blueprint(pedido)
+app.register_blueprint(detallepedido)
+
+
 @app.route("/pedido/update/<int:id>/", methods=["PUT"])
 def empleadoCreateUpdate2(id):
     try:
@@ -45,20 +54,22 @@ def empleadoCreateUpdate2(id):
             cursor = conn.cursor()
             cursor.execute(sql, (id))
             fila = cursor.fetchall()
-            os.remove(os.path.join(app.config['CARPETAUP'],fila[0][0]))
+            os.remove(os.path.join(app.config['CARPETAUP'], fila[0][0]))
             sql2 = "UPDATE misfotos SET foto = %s WHERE id=%s;"
             cursor.execute(sql2, (cambioNombre, id))
             conn.commit()
             imagenProducto.save(input_images_path + cambioNombre)
-            mensaje ="foto actualizada"
-        else: 
-            mensaje="no se que paso pero no se actualizo x'd"
+            mensaje = "foto actualizada"
+        else:
+            mensaje = "no se que paso pero no se actualizo x'd"
     except Exception as ex:
         mensaje = "falla: " + repr(ex)
     return jsonify({"mensaje": mensaje})
 
+
 def pagina_no_encontrada(error):
     return "<h1>Método no encontrado</h1>"
+
 
 @app.route("/")
 def ingreso():

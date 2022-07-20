@@ -6,8 +6,10 @@ conexion = Connection()
 platillos = Blueprint("platillos", __name__)
 mysql = conexion.mysql
 
+
 def strip_tags(value):
     return re.sub(r'<[^>]*?>', '', value)
+
 
 def platilloGetInterno(id):
     exito = True
@@ -33,6 +35,7 @@ def platilloGetInterno(id):
         resultado = "Ocurrio un error: "+repr(ex)
         exito = False
     return [resultado, exito]
+
 
 @platillos.route("/platillos/selectCateg/<int:idCateg>/", methods=["GET"])
 def platillosSelectCateg(idCateg):
@@ -63,6 +66,7 @@ def platillosSelectCateg(idCateg):
         exito = False
     return jsonify({"resultado": resultado, "exito": exito})
 
+
 @platillos.route("/platillos/select/", methods=["GET"])
 def platillosSelect():
     resultado = []
@@ -92,19 +96,23 @@ def platillosSelect():
         exito = False
     return jsonify({"resultado": resultado, "exito": exito})
 
+
 @platillos.route("/platillos/get/<int:id>", methods=["GET"])
 def platilloGet(id):
     dato = platilloGetInterno(id)
     return jsonify({"resultado": dato[0], "exito": dato[1]})
 
 
-# @platillos.route("/platillos/foto/<string:categoria>/<string:imagen>", methods = ['GET'])
-@platillos.route("/platillos/foto/<string:imagen>", methods = ['GET'])
+# @platillos.route("/platillos/foto/<string:imagen>", methods = ['GET'])
 # def cargarImagenPlatillo(categoria, imagen):
-def cargarImagenPlatillo(imagen):
+@platillos.route("/platillos/foto/<string:categoria>/<string:imagen>", methods=['GET'])
+def cargarImagenPlatillo(categoria, imagen):
     # image_data = open("upload/images/"+categoria+"/"+imagen, "rb").read()
     try:
-        image_data = open("\Repositorios/mibackEnd/upload/images/"+imagen, "rb").read()
+        # image_data = open("\Repositorios/mibackEnd/upload/images/"+imagen, "rb").read()
+        # image_data = open("\Repositorios/mibackEnd/upload/" +
+        #                   categoria+"/"+imagen, "rb").read()
+        image_data = open("upload/" + categoria+"/"+imagen, "rb").read()
         resultado = make_response(image_data)
         resultado.headers['Content-Type'] = 'image/png'
     except Exception as ex:
@@ -112,7 +120,8 @@ def cargarImagenPlatillo(imagen):
     # return resultado
     return resultado
 
-@platillos.route("/platillos/delete/<int:id>/", methods = ['PUT'])
+
+@platillos.route("/platillos/delete/<int:id>/", methods=['PUT'])
 def platillosDelete(id):
     try:
         sql = "UPDATE producto SET estado = 0 WHERE idProducto=%s;"
@@ -149,6 +158,7 @@ def platillosGetCategoria(id):
         exito = False
     return [resultado, exito]
 
+
 @platillos.route("/platillos/create/", methods=["POST"])
 def platilloInsert():
     try:
@@ -164,14 +174,16 @@ def platilloInsert():
         idCategoria = strip_tags(idCategoria)
 
         if 'imagenPlatillo' in request.files:
-            nombreCategoria = platillosGetCategoria(idCategoria)[0]["nombreCategoria"]
+            nombreCategoria = platillosGetCategoria(
+                idCategoria)[0]["nombreCategoria"]
             nombreCategoria = "".join(nombreCategoria.split())
             ruta = nombreCategoria+"/"+imagen.filename
             imagen.save("upload/images/"+ruta)
             sql = "INSERT INTO producto(nombreProducto, precio, imagen, descripcion, idCategoria) VALUES (%s, %s, %s, %s, %s)"
             conn = mysql.connect()
             cursor = conn.cursor()
-            cursor.execute(sql, [nombrePlatillo, precio, ruta, descripcion, idCategoria])
+            cursor.execute(sql, [nombrePlatillo, precio,
+                           ruta, descripcion, idCategoria])
             conn.commit()
             mensaje = ""
         else:
@@ -179,6 +191,7 @@ def platilloInsert():
     except Exception as ex:
         mensaje = "Error en la ejecucion "+repr(ex)
     return jsonify({"mensaje": mensaje})
+
 
 @platillos.route("/platillos/update/<int:id>", methods=["PUT"])
 def platilloUpdate(id):
@@ -193,14 +206,16 @@ def platilloUpdate(id):
         descripcion = strip_tags(descripcion)
         idCategoria = strip_tags(idCategoria)
 
-        nombreCategoria = platillosGetCategoria(idCategoria)[0]["nombreCategoria"]
+        nombreCategoria = platillosGetCategoria(
+            idCategoria)[0]["nombreCategoria"]
         nombreCategoria = "".join(nombreCategoria.split())
 
         if 'imagenPlatillo' in request.files:
             imagen = request.files['imagenPlatillo']
             sql = "UPDATE producto SET nombreProducto=%s, precio=%s, imagen=%s, descripcion=%s,idCategoria=%s WHERE idProducto=%s"
             ruta = nombreCategoria+"/"+imagen.filename
-            datos = [nombrePlatillo, precio, ruta, descripcion, idCategoria, id]
+            datos = [nombrePlatillo, precio, ruta,
+                     descripcion, idCategoria, id]
             imagen.save("upload/images/"+ruta)
         else:
             sql = "UPDATE producto SET nombreProducto=%s,precio=%s,descripcion=%s, idCategoria=%s WHERE idProducto=%s"
