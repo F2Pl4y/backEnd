@@ -121,9 +121,9 @@ def pedidosSelectID(name):
 #     return jsonify({"mensaje": mensaje})
 
 
-@cartaPedidos.route("/pedido/foto/<string:imagen>/", methods = ['GET'])
-def cargarImagen(imagen):
-    image_data = open('\Repositorios/mibackEnd/upload/productos/'+imagen, "rb").read()
+@cartaPedidos.route("/pedido/foto/<string:categoria>/<string:imagen>/", methods = ['GET'])
+def cargarImagen(categoria,imagen):
+    image_data = open('\Repositorios/mibackEnd/upload/'+categoria+'/'+imagen, "rb").read()
     resultado = make_response(image_data)
     resultado.headers['Content-Type'] = 'image/png'
     return resultado

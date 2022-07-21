@@ -105,126 +105,128 @@ def platilloGet(id):
 
 # @platillos.route("/platillos/foto/<string:imagen>", methods = ['GET'])
 # def cargarImagenPlatillo(categoria, imagen):
-@platillos.route("/platillos/foto/<string:categoria>/<string:imagen>", methods=['GET'])
-def cargarImagenPlatillo(categoria, imagen):
+# @platillos.route("/platillos/foto/<string:categoria>/<string:imagen>", methods=['GET'])
+# def cargarImagenPlatillo(categoria, imagen):
+@platillos.route("/platillos/foto/", methods=['GET'])
+def cargarImagenPlatillo():
     # image_data = open("upload/images/"+categoria+"/"+imagen, "rb").read()
-    try:
-        # image_data = open("\Repositorios/mibackEnd/upload/images/"+imagen, "rb").read()
-        # image_data = open("\Repositorios/mibackEnd/upload/" +
-        #                   categoria+"/"+imagen, "rb").read()
-        image_data = open("upload/" + categoria+"/"+imagen, "rb").read()
-        resultado = make_response(image_data)
-        resultado.headers['Content-Type'] = 'image/png'
-    except Exception as ex:
-        resultado = print("falla: "+repr(ex))
-    # return resultado
+    # try:
+        # image_data = open("\Repositorios/mibackEnd/upload/images/"+categoria+"/"+imagen, "rb").read()
+        # image_data=open("\Repositorios/mibackEnd/upload/images/" +categoria+"/"+imagen, "rb").read()
+    image_data = open('upload/images/5/rolls.png', "rb").read()
+    resultado = make_response(image_data)
+    resultado.headers['Content-Type']='image/png'
     return resultado
+    # except Exception as ex:
+    #     resultado=print("falla: "+repr(ex))
+    # return resultado
+    
 
 
-@platillos.route("/platillos/delete/<int:id>/", methods=['PUT'])
+@ platillos.route("/platillos/delete/<int:id>/", methods=['PUT'])
 def platillosDelete(id):
     try:
-        sql = "UPDATE producto SET estado = 0 WHERE idProducto=%s;"
-        conector = mysql.connect()
-        cursor = conector.cursor()
+        sql="UPDATE producto SET estado = 0 WHERE idProducto=%s;"
+        conector=mysql.connect()
+        cursor=conector.cursor()
         cursor.execute(sql, id)
         conector.commit()
-        mensaje = ""
-        exito = True
+        mensaje=""
+        exito=True
     except Exception as ex:
-        mensaje = "Ocurrio un error "+repr(ex)
-        exito = False
+        mensaje="Ocurrio un error "+repr(ex)
+        exito=False
     return jsonify({"resultado": mensaje, "exito": exito})
 
 
 def platillosGetCategoria(id):
-    exito = True
+    exito=True
     try:
-        sql = "SELECT idCategoria, nombreCategoria FROM categoria WHERE idCategoria=%s;"
-        conector = mysql.connect()
-        cursor = conector.cursor()
+        sql="SELECT idCategoria, nombreCategoria FROM categoria WHERE idCategoria=%s;"
+        conector=mysql.connect()
+        cursor=conector.cursor()
         cursor.execute(sql, id)
-        dato = cursor.fetchone()
+        dato=cursor.fetchone()
         if dato != None:
-            resultado = {
+            resultado={
                 "idCategoria": dato[0],
                 "nombreCategoria": dato[1]
             }
         else:
-            resultado = "No se ha encontrado al empleado"
-            exito = False
+            resultado="No se ha encontrado al empleado"
+            exito=False
     except Exception as ex:
-        resultado = "Ocurrio un error: "+repr(ex)
-        exito = False
+        resultado="Ocurrio un error: "+repr(ex)
+        exito=False
     return [resultado, exito]
 
 
-@platillos.route("/platillos/create/", methods=["POST"])
+@ platillos.route("/platillos/create/", methods=["POST"])
 def platilloInsert():
     try:
-        nombrePlatillo = request.form["txtNombrePlatillo"]
-        precio = request.form["txtPrecio"]
-        imagen = request.files['imagenPlatillo']
-        descripcion = request.form["txtDescripcion"]
-        idCategoria = request.form["txtIdCategoria"]
+        nombrePlatillo=request.form["txtNombrePlatillo"]
+        precio=request.form["txtPrecio"]
+        imagen=request.files['imagenPlatillo']
+        descripcion=request.form["txtDescripcion"]
+        idCategoria=request.form["txtIdCategoria"]
 
-        nombrePlatillo = strip_tags(nombrePlatillo)
-        precio = strip_tags(precio)
-        descripcion = strip_tags(descripcion)
-        idCategoria = strip_tags(idCategoria)
+        nombrePlatillo=strip_tags(nombrePlatillo)
+        precio=strip_tags(precio)
+        descripcion=strip_tags(descripcion)
+        idCategoria=strip_tags(idCategoria)
 
         if 'imagenPlatillo' in request.files:
-            nombreCategoria = platillosGetCategoria(
+            nombreCategoria=platillosGetCategoria(
                 idCategoria)[0]["nombreCategoria"]
-            nombreCategoria = "".join(nombreCategoria.split())
-            ruta = nombreCategoria+"/"+imagen.filename
+            nombreCategoria="".join(nombreCategoria.split())
+            ruta=nombreCategoria+"/"+imagen.filename
             imagen.save("upload/images/"+ruta)
-            sql = "INSERT INTO producto(nombreProducto, precio, imagen, descripcion, idCategoria) VALUES (%s, %s, %s, %s, %s)"
-            conn = mysql.connect()
-            cursor = conn.cursor()
+            sql="INSERT INTO producto(nombreProducto, precio, imagen, descripcion, idCategoria) VALUES (%s, %s, %s, %s, %s)"
+            conn=mysql.connect()
+            cursor=conn.cursor()
             cursor.execute(sql, [nombrePlatillo, precio,
                            ruta, descripcion, idCategoria])
             conn.commit()
-            mensaje = ""
+            mensaje=""
         else:
-            mensaje = "Es necesario que insertes una imagen"
+            mensaje="Es necesario que insertes una imagen"
     except Exception as ex:
-        mensaje = "Error en la ejecucion "+repr(ex)
+        mensaje="Error en la ejecucion "+repr(ex)
     return jsonify({"mensaje": mensaje})
 
 
-@platillos.route("/platillos/update/<int:id>", methods=["PUT"])
+@ platillos.route("/platillos/update/<int:id>", methods=["PUT"])
 def platilloUpdate(id):
     try:
-        nombrePlatillo = request.form["txtNombrePlatillo"]
-        precio = request.form["txtPrecio"]
-        descripcion = request.form["txtDescripcion"]
-        idCategoria = request.form["txtIdCategoria"]
+        nombrePlatillo=request.form["txtNombrePlatillo"]
+        precio=request.form["txtPrecio"]
+        descripcion=request.form["txtDescripcion"]
+        idCategoria=request.form["txtIdCategoria"]
 
-        nombrePlatillo = strip_tags(nombrePlatillo)
-        precio = strip_tags(precio)
-        descripcion = strip_tags(descripcion)
-        idCategoria = strip_tags(idCategoria)
+        nombrePlatillo=strip_tags(nombrePlatillo)
+        precio=strip_tags(precio)
+        descripcion=strip_tags(descripcion)
+        idCategoria=strip_tags(idCategoria)
 
-        nombreCategoria = platillosGetCategoria(
+        nombreCategoria=platillosGetCategoria(
             idCategoria)[0]["nombreCategoria"]
-        nombreCategoria = "".join(nombreCategoria.split())
+        nombreCategoria="".join(nombreCategoria.split())
 
         if 'imagenPlatillo' in request.files:
-            imagen = request.files['imagenPlatillo']
-            sql = "UPDATE producto SET nombreProducto=%s, precio=%s, imagen=%s, descripcion=%s,idCategoria=%s WHERE idProducto=%s"
-            ruta = nombreCategoria+"/"+imagen.filename
-            datos = [nombrePlatillo, precio, ruta,
+            imagen=request.files['imagenPlatillo']
+            sql="UPDATE producto SET nombreProducto=%s, precio=%s, imagen=%s, descripcion=%s,idCategoria=%s WHERE idProducto=%s"
+            ruta=nombreCategoria+"/"+imagen.filename
+            datos=[nombrePlatillo, precio, ruta,
                      descripcion, idCategoria, id]
             imagen.save("upload/images/"+ruta)
         else:
-            sql = "UPDATE producto SET nombreProducto=%s,precio=%s,descripcion=%s, idCategoria=%s WHERE idProducto=%s"
-            datos = [nombrePlatillo, precio, descripcion, idCategoria, id]
-        conn = mysql.connect()
-        cursor = conn.cursor()
+            sql="UPDATE producto SET nombreProducto=%s,precio=%s,descripcion=%s, idCategoria=%s WHERE idProducto=%s"
+            datos=[nombrePlatillo, precio, descripcion, idCategoria, id]
+        conn=mysql.connect()
+        cursor=conn.cursor()
         cursor.execute(sql, datos)
         conn.commit()
-        mensaje = ""
+        mensaje=""
     except Exception as ex:
-        mensaje = "Error en la ejecucion "+repr(ex)
+        mensaje="Error en la ejecucion "+repr(ex)
     return jsonify({"mensaje": mensaje})
